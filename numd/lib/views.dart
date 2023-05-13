@@ -1,6 +1,7 @@
 import 'package:numd/numd.dart';
 
 import 'dart:typed_data';
+import "iterators.dart";
 
 class Slice {
   int start;
@@ -52,7 +53,7 @@ class ViewItem {
     return idx;
   }
 
-  int get index => start * blockSize;
+  int index({int offset = 0}) => (start + offset) * blockSize;
 
   @override
   String toString() {
@@ -80,7 +81,7 @@ class ViewMgrIterator implements Iterator {
 }
 
 class ViewMgr extends Iterable {
-  late final Float64List data;
+  late Float64List data;
   List<ViewItem> viewItems = [];
   List<int> activeAxes = [];
 
@@ -114,15 +115,19 @@ class ViewMgr extends Iterable {
     return newView;
   }
 
-  int getIndex() {
-    if (activeAxes.isEmpty) {
-      int idx = 0;
-      for (var item in viewItems) {
-        idx += item.index;
-      }
-      return idx;
+  int getFlatIndex(List<int> idxList) {
+    if (activeAxes.length != idxList.length) {
+      throw "Cannot access Index $idxList of an array with shape $shape";
     }
-    throw "Cannot access Index of view with a size greater than 1";
+    int idx = 0;
+    for (int i in Range(activeAxes.length)) {
+      idx += viewItems[activeAxes[i]].index(offset: idxList[i]);
+    }
+    for (var view in viewItems) {
+      if (view.size == 1) idx += view.index();
+    }
+
+    return idx;
   }
 
   void sliceView(dynamic idx, int axis) {
@@ -132,6 +137,7 @@ class ViewMgr extends Iterable {
 
   @override
   Iterator get iterator => ViewMgrIterator(this);
+  Iterable get indexIterator => throw "Not Implemented Error";
 
   @override
   String toString() {

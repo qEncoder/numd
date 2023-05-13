@@ -20,7 +20,13 @@ class ViewMgrFlat extends ViewMgr {
   Iterator get iterator => ViewMgrFlatIterator(this);
 
   @override
-  int getIndex() {
+  Iterable get indexIterator => ViewMgrFlatIndexIterable(this);
+
+  @override
+  int getFlatIndex(List<int> idxList) {
+    if (idxList.isNotEmpty) {
+      throw "raise notImplemented Error";
+    }
     // TODO find a better way of doing this .. this is not clean.
     if (activeAxesFlat.isEmpty) {
       int target = viewItemFlat.start;
@@ -69,7 +75,24 @@ class ViewMgrFlat extends ViewMgr {
   }
 }
 
-class ViewMgrFlatIterator implements Iterator {
+class ViewMgrFlatIterator extends ViewMgrFlatIndexIterator {
+  ViewMgrFlatIterator(super.viewMgr);
+
+  @override
+  get current {
+    return viewMgr.data[super.current];
+  }
+}
+
+class ViewMgrFlatIndexIterable extends Iterable {
+  ViewMgr viewMgr;
+  ViewMgrFlatIndexIterable(this.viewMgr);
+
+  @override
+  Iterator get iterator => ViewMgrFlatIndexIterator(viewMgr);
+}
+
+class ViewMgrFlatIndexIterator implements Iterator {
   ViewMgr viewMgr;
 
   int indexOffset = 0;
@@ -78,7 +101,7 @@ class ViewMgrFlatIterator implements Iterator {
   List<int> axisSizes = [];
   List<int> blockSizes = [];
 
-  ViewMgrFlatIterator(this.viewMgr) {
+  ViewMgrFlatIndexIterator(this.viewMgr) {
     for (var viewItem in viewMgr.viewItems) {
       indexOffset += viewItem.blockSize * viewItem.start;
     }
@@ -96,7 +119,7 @@ class ViewMgrFlatIterator implements Iterator {
     for (int i = 0; i < viewMgr.activeAxes.length; i++) {
       currentIdx += currentAxisIdx[i] * blockSizes[i];
     }
-    return viewMgr.data[currentIdx];
+    return currentIdx;
   }
 
   @override

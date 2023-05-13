@@ -1,11 +1,11 @@
 name: numd
 description: numerical dart
-version: 1.0.0
+version: 0.0.1
 
 environment:
   sdk: ">=3.0.0"
 dependencies:
-  # path: ^1.8.0
+  collection : any
 
 dev_dependencies:
   lints: ^2.0.0
