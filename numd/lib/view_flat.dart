@@ -92,26 +92,8 @@ class ViewMgrFlatIndexIterable extends Iterable {
   Iterator get iterator => ViewMgrFlatIndexIterator(viewMgr);
 }
 
-class ViewMgrFlatIndexIterator implements Iterator {
-  ViewMgr viewMgr;
-
-  int indexOffset = 0;
-
-  List<int> currentAxisIdx = [];
-  List<int> axisSizes = [];
-  List<int> blockSizes = [];
-
-  ViewMgrFlatIndexIterator(this.viewMgr) {
-    for (var viewItem in viewMgr.viewItems) {
-      indexOffset += viewItem.blockSize * viewItem.start;
-    }
-    for (int axis in viewMgr.activeAxes) {
-      blockSizes.add(viewMgr.viewItems[axis].blockSize);
-      axisSizes.add(viewMgr.viewItems[axis].size);
-      currentAxisIdx.add(0);
-    }
-    currentAxisIdx[axisSizes.length - 1] = -1;
-  }
+class ViewMgrFlatIndexIterator extends ViewMgrIndexIterator{
+  ViewMgrFlatIndexIterator(super.viewMgr);
 
   @override
   get current {
@@ -120,20 +102,5 @@ class ViewMgrFlatIndexIterator implements Iterator {
       currentIdx += currentAxisIdx[i] * blockSizes[i];
     }
     return currentIdx;
-  }
-
-  @override
-  bool moveNext() {
-    for (int i = currentAxisIdx.length - 1; i >= 0; i--) {
-      if (currentAxisIdx[i] != axisSizes[i] - 1) {
-        currentAxisIdx[i] += 1;
-
-        for (int j = i + 1; j < currentAxisIdx.length; j++) {
-          currentAxisIdx[j] = 0;
-        }
-        return true;
-      }
-    }
-    return false;
   }
 }

@@ -31,13 +31,34 @@ class ndarray extends Iterable {
     }
   }
 
-  // TODO extend to lists of any dimension
   ndarray.fromList(List mylist) {
-    data = Float64List(mylist.length);
-    for (int i = 0; i < mylist.length; i++) {
-      data[i] = mylist[i] as double;
+    List<int> listShape = __getListOfListSize(mylist, []);
+    
+    data = Float64List(listShape.reduce((value, element) => value * element));
+    view = ViewMgr(data, listShape);
+
+    Iterator idxIterator = view.indexIterator.iterator;
+    idxIterator.moveNext();
+
+    for (int i in Range(view.size)){
+      dynamic arrayValue = mylist;
+      for (int idx in idxIterator.current){
+        arrayValue = arrayValue[idx];
+      }
+      data[i] = arrayValue.toDouble();
+      idxIterator.moveNext();
     }
-    view = ViewMgr(data, [mylist.length]);
+  }
+
+  static List<int> __getListOfListSize(dynamic mylist, List<int> currentSize){
+    if (mylist is List){
+      currentSize.add(mylist.length);
+      return __getListOfListSize(mylist[0], currentSize);}
+    else if (mylist is int || mylist is double){
+      return currentSize;
+    }else{
+      throw "Unrecognized type for construcing an array ${mylist.runtimeType}";
+    }
   }
 
   List<int> get shape => view.shape;
@@ -59,11 +80,12 @@ class ndarray extends Iterable {
 
   dynamic operator [](dynamic idx) {
     ndarray newArray = ndarray.from(this);
+
     if (idx is List) {
       for (int i = idx.length - 1; i >= 0; i--) {
         newArray.view.sliceView(idx[i], i);
       }
-    } else if (idx is int) {
+    } else if (idx is int || idx is Slice) {
       newArray.view.sliceView(idx, 0);
     } else {
       throw "Type for index invalid (${idx.runtimeType})";
@@ -87,7 +109,6 @@ class ndarray extends Iterable {
         data[view.getFlatIndex([index])] = other.toDouble();
         return;
       }
-
       var arrSliced = ndarray.from(this)[index];
 
       if (arrSliced.size == 1) {
@@ -263,8 +284,14 @@ ndarray eye(n) {
 }
 
 void main(List<String> args) {
+  var d = ndarray.fromList([[1,2,3],[1,2,3]]); 
+  // print(d);
+
   var a = ones([3, 3]);
   var b = linspace(0, 2, 3);
-  // a[2] = b;
-  print(a * b);
+  // for (var i in a.view.indexIterator){
+  //   print(i);
+  // }
+  a[2] = b;
+  // print(a + b);
 }

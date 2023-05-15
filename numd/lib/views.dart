@@ -7,6 +7,11 @@ class Slice {
   int start;
   int stop;
   Slice(this.start, this.stop);
+
+  @override
+  String toString() {
+    return "Slice of array, start : $start | stop : $stop";
+  }
 }
 
 class ViewItem {
@@ -80,6 +85,56 @@ class ViewMgrIterator implements Iterator {
   }
 }
 
+class ViewMgrIndexIterable extends Iterable{
+  ViewMgr viewMgr;
+  ViewMgrIndexIterable(this.viewMgr);
+  
+  @override
+  Iterator get iterator => ViewMgrIndexIterator(viewMgr);
+}
+
+class ViewMgrIndexIterator implements Iterator{
+  ViewMgr viewMgr;
+
+  int indexOffset = 0;
+  List<int> currentAxisIdx = [];
+  List<int> axisSizes = [];
+  List<int> blockSizes = [];
+
+  ViewMgrIndexIterator(this.viewMgr) {
+    for (var viewItem in viewMgr.viewItems) {
+      indexOffset += viewItem.blockSize * viewItem.start;
+    }
+    for (int axis in viewMgr.activeAxes) {
+      blockSizes.add(viewMgr.viewItems[axis].blockSize);
+      axisSizes.add(viewMgr.viewItems[axis].size);
+      currentAxisIdx.add(0);
+    }
+    currentAxisIdx[axisSizes.length - 1] = -1;
+  }
+
+  @override
+  get current {
+    return currentAxisIdx;
+  }
+
+  @override
+  bool moveNext() {
+    for (int i = currentAxisIdx.length - 1; i >= 0; i--) {
+      if (currentAxisIdx[i] != axisSizes[i] - 1) {
+        currentAxisIdx[i] += 1;
+
+        for (int j = i + 1; j < currentAxisIdx.length; j++) {
+          currentAxisIdx[j] = 0;
+        }
+        return true;
+      }
+    }
+    return false;
+  }
+}
+
+
 class ViewMgr extends Iterable {
   late Float64List data;
   List<ViewItem> viewItems = [];
@@ -137,7 +192,7 @@ class ViewMgr extends Iterable {
 
   @override
   Iterator get iterator => ViewMgrIterator(this);
-  Iterable get indexIterator => throw "Not Implemented Error";
+  Iterable get indexIterator => ViewMgrIndexIterable(this);
 
   @override
   String toString() {
