@@ -33,16 +33,16 @@ class ndarray extends Iterable {
 
   ndarray.fromList(List mylist) {
     List<int> listShape = __getListOfListSize(mylist, []);
-    
+
     data = Float64List(listShape.reduce((value, element) => value * element));
     view = ViewMgr(data, listShape);
 
     Iterator idxIterator = view.indexIterator.iterator;
     idxIterator.moveNext();
 
-    for (int i in Range(view.size)){
+    for (int i in Range(view.size)) {
       dynamic arrayValue = mylist;
-      for (int idx in idxIterator.current){
+      for (int idx in idxIterator.current) {
         arrayValue = arrayValue[idx];
       }
       data[i] = arrayValue.toDouble();
@@ -50,13 +50,13 @@ class ndarray extends Iterable {
     }
   }
 
-  static List<int> __getListOfListSize(dynamic mylist, List<int> currentSize){
-    if (mylist is List){
+  static List<int> __getListOfListSize(dynamic mylist, List<int> currentSize) {
+    if (mylist is List) {
       currentSize.add(mylist.length);
-      return __getListOfListSize(mylist[0], currentSize);}
-    else if (mylist is int || mylist is double){
+      return __getListOfListSize(mylist[0], currentSize);
+    } else if (mylist is int || mylist is double) {
       return currentSize;
-    }else{
+    } else {
       throw "Unrecognized type for construcing an array ${mylist.runtimeType}";
     }
   }
@@ -101,7 +101,7 @@ class ndarray extends Iterable {
     if (other is int || other is double) {
       if (index is List<int>) {
         if (ndim == index.length) {
-          data[view.getFlatIndex(index)] = other as double;
+          data[view.getFlatIndex(index)] = other.toDouble();
           return;
         }
       }
@@ -251,6 +251,31 @@ class ndarray extends Iterable {
       throw "invalid datatype (${other.runtimeType})";
     }
   }
+
+  @override
+  bool operator ==(Object other) {
+    if (other is ndarray) {
+      if (!ListEquality().equals(shape, other.shape)) return false;
+
+      for (final arrayVals in IterableZip([flat.view, other.flat.view])) {
+        if (arrayVals[0] != arrayVals[1]) return false;
+      }
+      return true;
+    }
+    return false;
+  }
+
+  Float64List __getRawData() {
+    print("calling hash, $size");
+    Float64List reducedData = Float64List(size);
+    for (final idxVal in IterableZip([Range(size), flat.view])) {
+      reducedData[idxVal[0]] = idxVal[1];
+    }
+    return reducedData;
+  }
+
+  @override
+  int get hashCode => Object.hash(__getRawData(), shape);
 }
 
 ndarray empty(List<int> shape) {
@@ -284,7 +309,10 @@ ndarray eye(n) {
 }
 
 void main(List<String> args) {
-  var d = ndarray.fromList([[1,2,3],[1,2,3]]); 
+  var d = ndarray.fromList([
+    [1, 2, 3],
+    [1, 2, 3]
+  ]);
   // print(d);
 
   var a = ones([3, 3]);
