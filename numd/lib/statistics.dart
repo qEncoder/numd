@@ -1,5 +1,6 @@
 import "package:numd/numd.dart";
 import 'package:numd/iterators.dart';
+import 'package:numd/views.dart';
 
 dynamic average(ndarray array, {dynamic axis}) {
   if (axis == null) {
@@ -11,8 +12,24 @@ dynamic average(ndarray array, {dynamic axis}) {
   } else if (axis is int) {
     return average(array, axis: [axis]);
   } else if (axis is List<int>) {
-    if (array.ndim == axis.length) return average(array);
+    if (axis.isEmpty) return average(array);
 
-    List<int> AxisToAverage = List.from(Range(array.ndim))..remove(axis);
+    List<int> invAxis = [];
+    List slice = List.generate(
+        array.ndim, (int idx) => (axis.contains(idx)) ? 0 : Slice(0, -1));
+
+    for (int i in Range(array.ndim)) {
+      if (!axis.contains(i)) invAxis.add(i);
+    }
+    ndarray avg = ndarray(array[slice].shape);
+    for (List<int> idx in avg.view.indexIterator) {
+      slice = List.generate(array.ndim, (int index) => Slice(0, -1));
+      for (int index in Range(idx.length)) {
+        slice[invAxis[index]] = idx[index];
+      }
+      avg[idx] = average(array[slice]);
+    }
+
+    return avg;
   }
 }

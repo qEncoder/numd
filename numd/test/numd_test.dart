@@ -1,34 +1,35 @@
 import 'package:numd/numd.dart';
+import 'package:numd/statistics.dart';
 import 'package:numd/views.dart';
 import 'package:test/test.dart';
 
-ndarray get1Darray() {
-  return ndarray.fromList([1.0, 2.0, 3.0, 4.0, 5.0, 6.0]);
-}
-
-ndarray get2Darray() {
-  return ndarray.fromList([
-    [1.0, 2.0, 3.0],
-    [4.0, 5.0, 6.0]
-  ]);
-}
-
-ndarray get3Darray() {
-  return ndarray.fromList([
-    [
-      [1, 1, 1, 1],
-      [2, 2, 2, 2],
-      [3, 3, 3, 3]
-    ],
-    [
-      [4, 4, 4, 4],
-      [5, 5, 5, 5],
-      [6, 6, 6, 6]
-    ]
-  ]);
-}
-
 void main() {
+  ndarray get1Darray() {
+    return ndarray.fromList([1.0, 2.0, 3.0, 4.0, 5.0, 6.0]);
+  }
+
+  ndarray get2Darray() {
+    return ndarray.fromList([
+      [1.0, 2.0, 3.0],
+      [4.0, 5.0, 6.0]
+    ]);
+  }
+
+  ndarray get3Darray() {
+    return ndarray.fromList([
+      [
+        [1, 1, 1, 1],
+        [2, 2, 2, 2],
+        [3, 3, 3, 3]
+      ],
+      [
+        [4, 4, 4, 4],
+        [5, 5, 5, 5],
+        [6, 6, 6, 6]
+      ]
+    ]);
+  }
+
   group("ndarray List assignment tests", () {
     test('List 1D (1,)', () {
       ndarray a = ndarray.fromList([1.0]);
@@ -204,6 +205,58 @@ void main() {
               [6, 6, 6, 6]
             ]
           ]));
+    });
+  });
+
+  group("averaging arrays", () {
+    ndarray arrayToAverage = ndarray.fromList([
+      [
+        [1, 2, 3, 4, 5],
+        [6, 7, 8, 9, 10]
+      ],
+      [
+        [11, 12, 13, 14, 15],
+        [16, 17, 18, 19, 20]
+      ],
+      [
+        [21, 22, 23, 24, 25],
+        [26, 27, 28, 29, 30]
+      ]
+    ]);
+
+    test("simple average", () {
+      double avg = average(arrayToAverage);
+      expect(avg, 15.5);
+    });
+    test("average along diff directions (1D), test 1", () {
+      ndarray avg = average(arrayToAverage, axis: 0);
+      expect(
+          avg,
+          ndarray.fromList([
+            [11, 12, 13, 14, 15],
+            [16, 17, 18, 19, 20]
+          ]));
+    });
+
+    test("average along diff directions (1D), test 2", () {
+      ndarray avg = average(arrayToAverage, axis: 1);
+      expect(
+          avg,
+          ndarray.fromList([
+            [3.5, 4.5, 5.5, 6.5, 7.5],
+            [13.5, 14.5, 15.5, 16.5, 17.5],
+            [23.5, 24.5, 25.5, 26.5, 27.5]
+          ]));
+    });
+
+    test("average along diff directions (2D), test 1", () {
+      ndarray avg = average(arrayToAverage, axis: [0, 1]);
+      expect(avg, ndarray.fromList([13.5, 14.5, 15.5, 16.5, 17.5]));
+    });
+
+    test("average along diff directions (2D), test 1", () {
+      ndarray avg = average(arrayToAverage, axis: [0, 2]);
+      expect(avg, ndarray.fromList([13, 18]));
     });
   });
 }

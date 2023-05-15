@@ -1,4 +1,5 @@
 import 'package:collection/collection.dart';
+import 'package:numd/statistics.dart';
 
 import 'dart:typed_data';
 import 'views.dart';
@@ -62,15 +63,20 @@ class ndarray extends Iterable {
   }
 
   List<int> get shape => view.shape;
-  int get size => _getSize();
+  int get size => __getSize();
   int get ndim => view.shape.length;
 
   @override
-  Iterator get iterator => ViewMgrIterator(view);
-  ndarray get flat => ndarray.rawConstructor(data, ViewMgrFlat.from(view));
+  Iterator get iterator =>
+      (view is ViewMgrFlat) ? ViewMgrFlatIterator(view) : ViewMgrIterator(view);
+  ndarray get flat {
+    if (view is ViewMgrFlat) return this;
+    return ndarray.rawConstructor(data, ViewMgrFlat.from(view));
+  }
+
   ndarray get T => ndarray.rawConstructor(data, view.tranposeView());
 
-  int _getSize() {
+  int __getSize() {
     int s = 1;
     for (var e in shape) {
       s *= e;
@@ -136,8 +142,8 @@ class ndarray extends Iterable {
           if (!ListEquality().equals(other.shape, arrSliced.shape)) {
             throw "Cannot assign two ndarrays of different shapes (current : ${arrSliced.shape}, other : ${other.shape})";
           }
-          for (final idxVal in IterableZip(
-              [arrSliced.flat.view.indexIterator, other.flat.view])) {
+          for (final idxVal
+              in IterableZip([arrSliced.flat.view.indexIterator, other.flat])) {
             arrSliced.data[idxVal[0]] = idxVal[1];
           }
         } else {
@@ -153,13 +159,13 @@ class ndarray extends Iterable {
     ndarray result = ndarray(shape);
     if (other is int || other is double) {
       for (final idxVal
-          in IterableZip([result.flat.view.indexIterator, flat.view])) {
+          in IterableZip([result.flat.view.indexIterator, flat])) {
         result.data[idxVal[0]] = idxVal[1] * other.toDouble();
       }
     } else if (other is ndarray) {
       if (ListEquality().equals(other.shape, result.shape)) {
         for (final idxVal in IterableZip(
-            [result.flat.view.indexIterator, flat.view, other.flat.view])) {
+            [result.flat.view.indexIterator, flat, other.flat])) {
           result.data[idxVal[0]] = idxVal[1] * idxVal[2];
         }
       } else if (other.ndim < result.ndim) {
@@ -180,7 +186,7 @@ class ndarray extends Iterable {
       ndarray result = ndarray(shape);
       if (ListEquality().equals(other.shape, result.shape)) {
         for (final idxVal in IterableZip(
-            [result.flat.view.indexIterator, flat.view, other.flat.view])) {
+            [result.flat.view.indexIterator, flat, other.flat])) {
           result.data[idxVal[0]] = idxVal[1] / idxVal[2];
         }
       } else if (other.ndim < result.ndim) {
@@ -200,7 +206,7 @@ class ndarray extends Iterable {
     ndarray result = ndarray(shape);
     if (other is int || other is double) {
       for (final idxVal
-          in IterableZip([result.flat.view.indexIterator, flat.view])) {
+          in IterableZip([result.flat.view.indexIterator, flat])) {
         result.data[idxVal[0]] = idxVal[1] + other.toDouble();
       }
       return result;
@@ -208,7 +214,7 @@ class ndarray extends Iterable {
       ndarray result = ndarray(shape);
       if (ListEquality().equals(other.shape, result.shape)) {
         for (final idxVal in IterableZip(
-            [result.flat.view.indexIterator, flat.view, other.flat.view])) {
+            [result.flat.view.indexIterator, flat, other.flat])) {
           result.data[idxVal[0]] = idxVal[1] + idxVal[2];
         }
       } else if (other.ndim < result.ndim) {
@@ -228,7 +234,7 @@ class ndarray extends Iterable {
     ndarray result = ndarray(shape);
     if (other is int || other is double) {
       for (final idxVal
-          in IterableZip([result.flat.view.indexIterator, flat.view])) {
+          in IterableZip([result.flat.view.indexIterator, flat])) {
         result.data[idxVal[0]] = idxVal[1] - other.toDouble();
       }
       return result;
@@ -236,7 +242,7 @@ class ndarray extends Iterable {
       ndarray result = ndarray(shape);
       if (ListEquality().equals(other.shape, result.shape)) {
         for (final idxVal in IterableZip(
-            [result.flat.view.indexIterator, flat.view, other.flat.view])) {
+            [result.flat.view.indexIterator, flat, other.flat])) {
           result.data[idxVal[0]] = idxVal[1] - idxVal[2];
         }
       } else if (other.ndim < result.ndim) {
@@ -257,7 +263,7 @@ class ndarray extends Iterable {
     if (other is ndarray) {
       if (!ListEquality().equals(shape, other.shape)) return false;
 
-      for (final arrayVals in IterableZip([flat.view, other.flat.view])) {
+      for (final arrayVals in IterableZip([flat, other.flat])) {
         if (arrayVals[0] != arrayVals[1]) return false;
       }
       return true;
@@ -265,17 +271,16 @@ class ndarray extends Iterable {
     return false;
   }
 
-  Float64List __getRawData() {
-    print("calling hash, $size");
+  Float64List __getReducedData() {
     Float64List reducedData = Float64List(size);
-    for (final idxVal in IterableZip([Range(size), flat.view])) {
+    for (final idxVal in IterableZip([Range(size), flat])) {
       reducedData[idxVal[0]] = idxVal[1];
     }
     return reducedData;
   }
 
   @override
-  int get hashCode => Object.hash(__getRawData(), shape);
+  int get hashCode => Object.hash(__getReducedData(), shape);
 }
 
 ndarray empty(List<int> shape) {
@@ -310,16 +315,29 @@ ndarray eye(n) {
 
 void main(List<String> args) {
   var d = ndarray.fromList([
-    [1, 2, 3],
-    [1, 2, 3]
+    [
+      [1, 2, 3, 4, 5],
+      [6, 7, 8, 9, 10]
+    ],
+    [
+      [1, 2, 3, 4, 5],
+      [6, 7, 8, 9, 10]
+    ],
+    [
+      [1, 2, 3, 4, 5],
+      [6, 7, 8, 9, 10]
+    ]
   ]);
   // print(d);
-
-  var a = ones([3, 3]);
-  var b = linspace(0, 2, 3);
-  // for (var i in a.view.indexIterator){
-  //   print(i);
-  // }
-  a[2] = b;
+  print(average(d));
+  print(average(d, axis: 0));
+  print(average(d, axis: 1));
+  // var a = ones([3, 3]);
+  // var b = linspace(0, 2, 3);
+  // // for (var i in a.view.indexIterator){
+  // //   print(i);
+  // // }
+  // a[2] = b;
   // print(a + b);
+  // print(a == b);
 }
