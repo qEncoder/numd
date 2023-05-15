@@ -1,7 +1,7 @@
-import 'package:numd/numd.dart';
+import 'package:numd/src/base/ndarray.dart';
+import 'package:numd/src/utility/iterators.dart';
 
 import 'dart:typed_data';
-import "iterators.dart";
 
 class Slice {
   int start;
@@ -85,15 +85,15 @@ class ViewMgrIterator implements Iterator {
   }
 }
 
-class ViewMgrIndexIterable extends Iterable{
+class ViewMgrIndexIterable extends Iterable {
   ViewMgr viewMgr;
   ViewMgrIndexIterable(this.viewMgr);
-  
+
   @override
   Iterator get iterator => ViewMgrIndexIterator(viewMgr);
 }
 
-class ViewMgrIndexIterator implements Iterator{
+class ViewMgrIndexIterator implements Iterator {
   ViewMgr viewMgr;
 
   int indexOffset = 0;
@@ -133,7 +133,6 @@ class ViewMgrIndexIterator implements Iterator{
     return false;
   }
 }
-
 
 class ViewMgr extends Iterable {
   late Float64List data;

@@ -1,4 +1,4 @@
-import 'views.dart';
+import 'package:numd/src/base/view.dart';
 
 class ViewMgrFlat extends ViewMgr {
   late ViewItem viewItemFlat;
@@ -92,7 +92,7 @@ class ViewMgrFlatIndexIterable extends Iterable {
   Iterator get iterator => ViewMgrFlatIndexIterator(viewMgr);
 }
 
-class ViewMgrFlatIndexIterator extends ViewMgrIndexIterator{
+class ViewMgrFlatIndexIterator extends ViewMgrIndexIterator {
   ViewMgrFlatIndexIterator(super.viewMgr);
 
   @override

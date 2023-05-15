@@ -1,6 +1,6 @@
-import "package:numd/numd.dart";
-import 'package:numd/iterators.dart';
-import 'package:numd/views.dart';
+import 'package:numd/src/base/ndarray.dart';
+import 'package:numd/src/base/view.dart';
+import 'package:numd/src/utility/iterators.dart';
 
 dynamic average(ndarray array, {dynamic axis}) {
   if (axis == null) {
