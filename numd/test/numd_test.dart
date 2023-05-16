@@ -1,6 +1,4 @@
 import 'package:numd/numd.dart';
-import 'package:numd/statistics.dart';
-import 'package:numd/views.dart';
 import 'package:test/test.dart';
 
 void main() {

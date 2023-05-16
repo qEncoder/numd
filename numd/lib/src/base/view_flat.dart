@@ -24,43 +24,18 @@ class ViewMgrFlat extends ViewMgr {
 
   @override
   int getFlatIndex(List<int> idxList) {
-    if (idxList.isNotEmpty) {
-      throw "raise notImplemented Error";
+    int target = viewItemFlat.start;
+    if (idxList.isNotEmpty) target += idxList[0];
+
+    List<int> nonFlatShape = super.shape;
+    List<int> nonFlatIndex = List.from(nonFlatShape);
+
+    for (int i = nonFlatIndex.length - 1; i >= 0; i--) {
+      nonFlatIndex[i] = target % nonFlatShape[i];
+      target = (target - nonFlatIndex[i]) ~/ nonFlatShape[i];
     }
-    // TODO find a better way of doing this .. this is not clean.
-    if (activeAxesFlat.isEmpty) {
-      int target = viewItemFlat.start;
-      List<int> accessCoordinate = [];
-      List<int> blocksize = [];
-      int block = 1;
-      for (int i = super.activeAxes.length - 1; i >= 0; i--) {
-        blocksize.add(block);
-        block *= viewItems[super.activeAxes[i]].size;
-      }
-      blocksize = List.from(blocksize.reversed);
 
-      for (int i = 0; i < super.activeAxes.length; i++) {
-        int variable = target - (target) % blocksize[i];
-        accessCoordinate.add(variable ~/ blocksize[i]);
-        target -= variable;
-      }
-
-      int index = 0;
-      for (int i = 0; i < super.viewItems.length; i++) {
-        if (super.activeAxes.contains(i)) {
-          int idx = super.activeAxes.singleWhere((element) => element == i);
-          index += accessCoordinate[idx] *
-              super.viewItems[super.activeAxes[i]].blockSize;
-          index += super.viewItems[super.activeAxes[i]].start *
-              super.viewItems[super.activeAxes[i]].blockSize;
-        } else {
-          index += super.viewItems[i].start * super.viewItems[i].blockSize;
-        }
-      }
-
-      return index;
-    }
-    throw "Cannot access Index of view with a size greater than 1";
+    return super.getFlatIndex(nonFlatIndex);
   }
 
   @override
