@@ -5,7 +5,7 @@ This is a library that brings a numpy alike functionality to Dart/Flutter.
 Currently the following features as supported: 
 * n-dimensional arrays with support for slicing.
 * Addition, multiplication, subtraction, divisions.
-* Averaging.
+* Averaging, normalize, min, max.
 
 ## Examples
 

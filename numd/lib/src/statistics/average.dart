@@ -22,12 +22,15 @@ dynamic average(ndarray array, {dynamic axis}) {
       if (!axis.contains(i)) invAxis.add(i);
     }
     ndarray avg = ndarray(array[slice].shape);
+
     for (List<int> idx in avg.view.indexIterator) {
       slice = List.generate(array.ndim, (int index) => Slice(0, -1));
       for (int index in Range(idx.length)) {
         slice[invAxis[index]] = idx[index];
       }
-      avg[idx] = average(array[slice]);
+
+      var slicedArray = array[slice];
+      avg[idx] = (slicedArray is double) ? slicedArray : average(slicedArray);
     }
 
     return avg;

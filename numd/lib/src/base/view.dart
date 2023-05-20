@@ -12,6 +12,8 @@ class Slice {
   String toString() {
     return "Slice of array, start : $start | stop : $stop";
   }
+
+  int get size => (stop < 0) ? -1 : stop - start;
 }
 
 class ViewItem {
@@ -35,25 +37,26 @@ class ViewItem {
 
   setRange(dynamic idx) {
     if (idx is int) {
-      start = _getIdx(idx);
+      start = _getIdx(idx, false);
       stop = start + 1;
     } else if (idx is Slice) {
-      stop = _getIdx(idx.stop);
-      start = _getIdx(idx.start);
+      stop = _getIdx(idx.stop, true);
+      start = _getIdx(idx.start, false);
     } else {
       throw "Faulty type to access an index.";
     }
   }
 
-  int _getIdx(int idx) {
+  int _getIdx(int idx, bool end) {
     if (idx >= 0) {
       idx += start;
-      if (idx > stop)
-        throw "RangeError : index  $idx is out for bound (allowed values :[0, $size]).";
+      int offset = end ? 1 : 0;
+      if (idx >= stop + offset)
+        throw "RangeError : index ${idx - start} is out for bound (allowed values :[0 -> ${size - 1}]).";
     } else {
       idx = stop + idx + 1;
       if (idx < start)
-        throw "RangeError : index  ${idx - stop} is out for bound (allowed values :[0, $size]).";
+        throw "RangeError : index  ${idx - stop - 1} is out for bound (allowed values :[${-size} -> -1]).";
     }
     return idx;
   }
@@ -170,15 +173,19 @@ class ViewMgr extends Iterable {
   }
 
   int getFlatIndex(List<int> idxList) {
-    if (activeAxes.length != idxList.length) {
-      throw "Cannot access Index $idxList of an array with shape $shape";
+    if (idxList.isNotEmpty) {
+      if (activeAxes.length != idxList.length) {
+        throw "Cannot access Index $idxList of an array with shape $shape";
+      }
+    } else {
+      idxList = List.filled(activeAxes.length, 0);
     }
     int idx = 0;
     for (int i in Range(activeAxes.length)) {
       idx += viewItems[activeAxes[i]].index(offset: idxList[i]);
     }
-    for (var view in viewItems) {
-      if (view.size == 1) idx += view.index();
+    for (int i in Range(viewItems.length)) {
+      if (!activeAxes.contains(i)) idx += viewItems[i].index();
     }
 
     return idx;
