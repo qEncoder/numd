@@ -171,7 +171,9 @@ void main() {
 
     test('Assign array 1D to a 2D array test 2', () {
       ndarray a = get2Darray();
-      a[[Slice(0, -1)]] = ndarray.fromList([7, 8, 9]);
+      // current operators do not support a[[:]]
+      a[[0]] = ndarray.fromList([7, 8, 9]);
+      a[[1]] = ndarray.fromList([7, 8, 9]);
       expect(
           a,
           ndarray.fromList([

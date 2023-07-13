@@ -1,0 +1,27 @@
+LIBRARY xarray_testing
+EXPORTS
+    create_xarray
+    destroy_xarray
+
+    get_ndim
+    get_size
+    get_shape
+
+    slice_array
+
+    add_arrays
+    add_double
+
+    substract_arrays
+    substract_double
+
+    multiply_arrays
+    multiply_double
+
+    divide_arrays
+    divide_double
+
+    mean
+    histogram
+
+    print_array

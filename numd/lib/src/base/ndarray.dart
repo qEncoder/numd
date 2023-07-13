@@ -1,54 +1,69 @@
-import 'package:collection/collection.dart';
-
 import 'dart:typed_data';
 
-import 'package:numd/src/base/view.dart';
-import 'package:numd/src/base/view_flat.dart';
+import 'package:collection/collection.dart';
+import 'package:numd/src/base/ndarray_flat.dart';
+import 'package:numd/src/bindings/xtensor_ndarray_bindings.dart';
+
+import 'dart:ffi';
+import 'package:ffi/ffi.dart';
 import 'package:numd/src/utility/iterators.dart';
 
-class ndarray extends Iterable {
-  // TODO implement print option
-  late final Float64List data;
-  late final ViewMgr view;
+class Slice {
+  int start;
+  int stop;
+  Slice(this.start, this.stop);
 
-  ndarray(List<int> shape) {
-    data = Float64List(shape.reduce((value, element) => value * element));
-    view = ViewMgr(data, shape);
+  @override
+  String toString() {
+    return "Slice of array, start : $start | stop : $stop";
   }
 
-  ndarray.rawConstructor(Float64List mydata, ViewMgr myview) {
-    if (myview.data.length != mydata.length)
-      throw "The size of the view does not correspond to the size of the array.";
-    data = mydata;
-    view = myview..data = mydata;
+  int get size => (stop < 0) ? -1 : stop - start;
+}
+
+class ndarray implements Finalizable {
+  Pointer<Void> arrPtr;
+  late final ndArrayFlat flat;
+
+  static final XtensorNdArray xtensorNdArray = XtensorNdArray();
+  static final _finalizer =
+      NativeFinalizer(XtensorNdArray().deleteXArrayNative);
+
+  ndarray._(this.arrPtr) {
+    flat = ndArrayFlat(this);
   }
 
-  ndarray.from(ndarray old) {
-    data = old.data;
-    if (old.view is ViewMgrFlat) {
-      view = ViewMgrFlat.from(old.view);
-    } else {
-      view = ViewMgr.from(old.view);
-    }
+  factory ndarray.fromPointer(Pointer<Void> arrPtr) {
+    final _ndArray = ndarray._(arrPtr);
+    _finalizer.attach(_ndArray, Pointer.fromAddress(_ndArray.arrPtr.address));
+    return _ndArray;
   }
 
-  ndarray.fromList(List mylist) {
+  factory ndarray.fromShape(List<int> shape, double filling) {
+    Pointer<Int64> _shape_c = intListToCArray(shape);
+
+    Pointer<Void> arrPtr =
+        xtensorNdArray.createXArray(shape.length, _shape_c, filling);
+    calloc.free(_shape_c);
+
+    final _ndArray = ndarray._(arrPtr);
+    _finalizer.attach(_ndArray, Pointer.fromAddress(_ndArray.arrPtr.address));
+    return _ndArray;
+  }
+
+  factory ndarray.fromList(List mylist) {
     List<int> listShape = __getListOfListSize(mylist, []);
 
-    data = Float64List(listShape.reduce((value, element) => value * element));
-    view = ViewMgr(data, listShape);
+    ndarray array = ndarray.fromShape(listShape, 0);
 
-    Iterator idxIterator = view.indexIterator.iterator;
-    idxIterator.moveNext();
-
-    for (int i in Range(view.size)) {
-      dynamic arrayValue = mylist;
-      for (int idx in idxIterator.current) {
-        arrayValue = arrayValue[idx];
+    for (List<int> idx in ShapeIterator(listShape)) {
+      dynamic listValue = mylist;
+      for (int i in idx) {
+        listValue = listValue[i];
       }
-      data[i] = arrayValue.toDouble();
-      idxIterator.moveNext();
+      array[idx] = listValue;
     }
+    return array;
   }
 
   static List<int> __getListOfListSize(dynamic mylist, List<int> currentSize) {
@@ -62,200 +77,97 @@ class ndarray extends Iterable {
     }
   }
 
-  List<int> get shape => view.shape;
-  int get size => __getSize();
-  int get ndim => view.shape.length;
+  int get size => xtensorNdArray.getSize(arrPtr);
+  int get ndim => xtensorNdArray.getNDim(arrPtr);
 
-  @override
-  Iterator get iterator =>
-      (view is ViewMgrFlat) ? ViewMgrFlatIterator(view) : ViewMgrIterator(view);
-  ndarray get flat {
-    if (view is ViewMgrFlat) return this;
-    return ndarray.rawConstructor(data, ViewMgrFlat.from(view));
-  }
+  ndarray get T => ndarray.fromPointer(xtensorNdArray.transpose(arrPtr));
 
-  ndarray get T => ndarray.rawConstructor(data, view.tranposeView());
-
-  int __getSize() {
-    int s = 1;
-    for (var e in shape) {
-      s *= e;
+  List<int> get shape {
+    List<int> _shape = [];
+    Pointer<Int64> _shape_c = calloc<Int64>(ndim);
+    xtensorNdArray.getShape(arrPtr, _shape_c);
+    for (var i = 0; i < ndim; i++) {
+      _shape.add(_shape_c[i]);
     }
-    return s;
-  }
-
-  dynamic operator [](dynamic idx) {
-    ndarray newArray = ndarray.from(this);
-
-    if (idx is List) {
-      for (int i = idx.length - 1; i >= 0; i--) {
-        newArray.view.sliceView(idx[i], i);
-      }
-    } else if (idx is int || idx is Slice) {
-      newArray.view.sliceView(idx, 0);
-    } else {
-      throw "Type for index invalid (${idx.runtimeType})";
-    }
-
-    if (newArray.size == 1) {
-      return newArray.data[newArray.view.getFlatIndex([])];
-    }
-    return newArray;
-  }
-
-  void operator []=(dynamic index, dynamic other) {
-    if (other is int || other is double) {
-      if (index is List<int>) {
-        if (ndim == index.length) {
-          data[view.getFlatIndex(index)] = other.toDouble();
-          return;
-        }
-      }
-      if (index is int && ndim == 1) {
-        data[view.getFlatIndex([index])] = other.toDouble();
-        return;
-      }
-      var arrSliced = ndarray.from(this)[index];
-
-      if (arrSliced.size == 1) {
-        arrSliced[arrSliced.view.getFlatIndex([])] = other.toDouble();
-      } else {
-        for (int i in arrSliced.flat.view.indexIterator) {
-          arrSliced.data[i] = other.toDouble();
-        }
-      }
-    } else {
-      if (other is List) {
-        other = ndarray.fromList(other);
-      }
-      if (other is ndarray) {
-        ndarray arrSliced = ndarray.from(this)[index];
-        if (other.ndim < arrSliced.ndim) {
-          if (other.shape[0] == shape[1]) {
-            for (ndarray a in arrSliced) {
-              a[Slice(0, -1)] = other;
-            }
-          } else {
-            throw "Cannot assign two ndarrays of different shapes (current : ${arrSliced.shape}, other : ${other.shape})";
-          }
-        } else if (other.ndim == arrSliced.ndim) {
-          if (!ListEquality().equals(other.shape, arrSliced.shape)) {
-            throw "Cannot assign two ndarrays of different shapes (current : ${arrSliced.shape}, other : ${other.shape})";
-          }
-          for (final idxVal
-              in IterableZip([arrSliced.flat.view.indexIterator, other.flat])) {
-            arrSliced.data[idxVal[0]] = idxVal[1];
-          }
-        } else {
-          throw "Cannot assign and ndarrays with the shape ${other.shape} to ${arrSliced.shape}";
-        }
-      } else {
-        throw "Cannot asssign an ndarray to the type ${other.hashCode}";
-      }
-    }
-  }
-
-  ndarray operator *(dynamic other) {
-    ndarray result = ndarray(shape);
-    if (other is int || other is double) {
-      for (final idxVal
-          in IterableZip([result.flat.view.indexIterator, flat])) {
-        result.data[idxVal[0]] = idxVal[1] * other.toDouble();
-      }
-    } else if (other is ndarray) {
-      if (ListEquality().equals(other.shape, result.shape)) {
-        for (final idxVal in IterableZip(
-            [result.flat.view.indexIterator, flat, other.flat])) {
-          result.data[idxVal[0]] = idxVal[1] * idxVal[2];
-        }
-      } else if (other.ndim < result.ndim) {
-        for (final idxVal in IterableZip([result, flat])) {
-          idxVal[0][Slice(0, -1)] = idxVal[1] * other;
-        }
-      } else {
-        throw "Cannot multiply an object with shape $shape and ${other.shape}";
-      }
-    }
-    return result;
-  }
-
-  ndarray operator /(dynamic other) {
-    if (other is int || other is double) {
-      return this * (1 / other);
-    } else if (other is ndarray) {
-      ndarray result = ndarray(shape);
-      if (ListEquality().equals(other.shape, result.shape)) {
-        for (final idxVal in IterableZip(
-            [result.flat.view.indexIterator, flat, other.flat])) {
-          result.data[idxVal[0]] = idxVal[1] / idxVal[2];
-        }
-      } else if (other.ndim < result.ndim) {
-        for (final idxVal in IterableZip([result, flat])) {
-          idxVal[0][Slice(0, -1)] = idxVal[1] / other;
-        }
-      } else {
-        throw "Cannot multiply an object with shape $shape and ${other.shape}";
-      }
-      return result;
-    } else {
-      throw "invalid datatype (${other.runtimeType})";
-    }
+    calloc.free(_shape_c);
+    return _shape;
   }
 
   ndarray operator +(dynamic other) {
-    ndarray result = ndarray(shape);
-    if (other is int || other is double) {
-      for (final idxVal
-          in IterableZip([result.flat.view.indexIterator, flat])) {
-        result.data[idxVal[0]] = idxVal[1] + other.toDouble();
-      }
-      return result;
-    } else if (other is ndarray) {
-      ndarray result = ndarray(shape);
-      if (ListEquality().equals(other.shape, result.shape)) {
-        for (final idxVal in IterableZip(
-            [result.flat.view.indexIterator, flat, other.flat])) {
-          result.data[idxVal[0]] = idxVal[1] + idxVal[2];
-        }
-      } else if (other.ndim < result.ndim) {
-        for (final idxVal in IterableZip([result, flat])) {
-          idxVal[0][Slice(0, -1)] = idxVal[1] + other;
-        }
-      } else {
-        throw "Cannot multiply an object with shape $shape and ${other.shape}";
-      }
-      return result;
+    if (other is ndarray) {
+      return ndarray
+          .fromPointer(xtensorNdArray.addArrays(arrPtr, other.arrPtr));
+    } else if (other is int || other is double) {
+      return ndarray
+          .fromPointer(xtensorNdArray.addDouble(arrPtr, other.toDouble()));
     } else {
-      throw "invalid datatype (${other.runtimeType})";
+      throw "Type ${other.runtimeType} is not supported for an addition operation";
     }
   }
 
   ndarray operator -(dynamic other) {
-    ndarray result = ndarray(shape);
-    if (other is int || other is double) {
-      for (final idxVal
-          in IterableZip([result.flat.view.indexIterator, flat])) {
-        result.data[idxVal[0]] = idxVal[1] - other.toDouble();
-      }
-      return result;
-    } else if (other is ndarray) {
-      ndarray result = ndarray(shape);
-      if (ListEquality().equals(other.shape, result.shape)) {
-        for (final idxVal in IterableZip(
-            [result.flat.view.indexIterator, flat, other.flat])) {
-          result.data[idxVal[0]] = idxVal[1] - idxVal[2];
-        }
-      } else if (other.ndim < result.ndim) {
-        for (final idxVal in IterableZip([result, flat])) {
-          idxVal[0][Slice(0, -1)] = idxVal[1] - other;
-        }
-      } else {
-        throw "Cannot multiply an object with shape $shape and ${other.shape}";
-      }
-      return result;
+    if (other is ndarray) {
+      return ndarray
+          .fromPointer(xtensorNdArray.substractArrays(arrPtr, other.arrPtr));
+    } else if (other is int || other is double) {
+      return ndarray.fromPointer(
+          xtensorNdArray.substractDouble(arrPtr, other.toDouble()));
     } else {
-      throw "invalid datatype (${other.runtimeType})";
+      throw "Type ${other.runtimeType} is not supported for an addition operation";
     }
+  }
+
+  ndarray operator *(dynamic other) {
+    if (other is ndarray) {
+      return ndarray
+          .fromPointer(xtensorNdArray.multiplyArrays(arrPtr, other.arrPtr));
+    } else if (other is int || other is double) {
+      return ndarray
+          .fromPointer(xtensorNdArray.multiplyDouble(arrPtr, other.toDouble()));
+    } else {
+      throw "Type ${other.runtimeType} is not supported for an addition operation";
+    }
+  }
+
+  ndarray operator /(dynamic other) {
+    if (other is ndarray) {
+      return ndarray
+          .fromPointer(xtensorNdArray.divideArrays(arrPtr, other.arrPtr));
+    } else if (other is int || other is double) {
+      return ndarray
+          .fromPointer(xtensorNdArray.divideDouble(arrPtr, other.toDouble()));
+    } else {
+      throw "Type ${other.runtimeType} is not supported for an addition operation";
+    }
+  }
+
+  dynamic operator [](dynamic idx) {
+    var (c_slice_list, nSlices) = idx_to_slices(idx);
+
+    ndarray arr = ndarray
+        .fromPointer(xtensorNdArray.sliceArray(arrPtr, c_slice_list, nSlices));
+    calloc.free(c_slice_list);
+
+    if (arr.size == 1) {
+      return arr.flat[0];
+    }
+    return arr;
+  }
+
+  void operator []=(dynamic idx, dynamic other) {
+    var (c_slice_list, nSlices) = idx_to_slices(idx);
+
+    if (other is ndarray) {
+      xtensorNdArray.assignArrayToSlice(
+          arrPtr, other.arrPtr, c_slice_list, nSlices);
+    } else if (other is int || other is double) {
+      xtensorNdArray.assignDoubleToSlice(
+          arrPtr, other.toDouble(), c_slice_list, nSlices);
+    } else {
+      throw "Type ${other.runtimeType} is not supported for an addition operation";
+    }
+
+    calloc.free(c_slice_list);
   }
 
   @override
@@ -263,8 +175,8 @@ class ndarray extends Iterable {
     if (other is ndarray) {
       if (!ListEquality().equals(shape, other.shape)) return false;
 
-      for (final arrayVals in IterableZip([flat, other.flat])) {
-        if (arrayVals[0] != arrayVals[1]) return false;
+      for (int i in Range(size)) {
+        if (flat[i] != other.flat[i]) return false;
       }
       return true;
     }
@@ -273,12 +185,62 @@ class ndarray extends Iterable {
 
   Float64List __getReducedData() {
     Float64List reducedData = Float64List(size);
-    for (final idxVal in IterableZip([Range(size), flat])) {
-      reducedData[idxVal[0]] = idxVal[1];
+    for (int i in Range(size)) {
+      reducedData[i] = flat[i];
     }
+    print(reducedData);
+    print(shape);
     return reducedData;
   }
 
   @override
-  int get hashCode => Object.hash(__getReducedData(), shape);
+  int get hashCode =>
+      Object.hash(Object.hashAll(__getReducedData()), Object.hashAll(shape));
+
+  (Pointer<c_slice>, int) idx_to_slices(idx) {
+    if (idx is! List) {
+      idx = [idx];
+    }
+
+    Pointer<c_slice> c_slice_list = calloc<c_slice>(idx.length);
+    for (var i = 0; i < idx.length; i++) {
+      if (idx[i] is int) {
+        c_slice_list[i].start = idx[i];
+        c_slice_list[i].stop = idx[i];
+        c_slice_list[i].noRange = true;
+      } else if (idx[i] is Slice) {
+        c_slice_list[i].start = idx[i].start;
+        c_slice_list[i].stop = idx[i].stop;
+        c_slice_list[i].noRange = false;
+      }
+    }
+    return (c_slice_list, idx.length);
+  }
+
+  // TODO get chars from c api.
+  @override
+  String toString() {
+    xtensorNdArray.printArray(arrPtr);
+    return "test";
+  }
+
+  // garbage collection seems to only collect at the end of the program.
+  // classes having a longer lifetime than whished for ...
+
+  // still some issues here, finalizer still removes extra time after this is called
+  // reason unclear.
+  // TODO more testing.
+  void dispose() {
+    _finalizer.detach(this);
+    xtensorNdArray.deleteXArray(arrPtr);
+    arrPtr = nullptr;
+  }
+}
+
+Pointer<Int64> intListToCArray(List<int> arr) {
+  Pointer<Int64> _shape_c = calloc<Int64>(arr.length);
+  for (int i = 0; i < arr.length; i++) {
+    _shape_c[i] = arr[i];
+  }
+  return _shape_c;
 }

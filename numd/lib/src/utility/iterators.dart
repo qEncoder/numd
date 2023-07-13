@@ -26,3 +26,46 @@ class RangeIterator implements Iterator {
     return true;
   }
 }
+
+class ShapeIterator extends Iterable {
+  final List<int> shape;
+  ShapeIterator(this.shape);
+
+  @override
+  Iterator get iterator => _ShapeIterator(shape);
+}
+
+class _ShapeIterator implements Iterator {
+  final List<int> shape;
+  List<int> currentShape;
+
+  _ShapeIterator(List<int> shape)
+      : shape = List.from(shape.reversed),
+        currentShape = List<int>.generate(shape.length, (index) => 0) {
+    currentShape[0] = -1;
+  }
+
+  @override
+  get current {
+    return List<int>.from(currentShape.reversed);
+  }
+
+  @override
+  bool moveNext() {
+    bool reset = false;
+    for (var i = 0; i < shape.length; i++) {
+      if (currentShape[i] + 1 < shape[i]) {
+        currentShape[i] += 1;
+        if (reset) {
+          for (var j = i - 1; j >= 0; j--) {
+            currentShape[j] = 0;
+          }
+        }
+        return true;
+      } else {
+        reset = true;
+      }
+    }
+    return false;
+  }
+}
