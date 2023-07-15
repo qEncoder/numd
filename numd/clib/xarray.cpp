@@ -14,7 +14,6 @@ void* create_xarray(int ndim, int64_t* shape, double fill){
 }
 
 void delete_xarray(void* ptr){
-    std::cout<<"deleting array";
     xt::xarray<double>* xarray_ptr = static_cast<xt::xarray<double>*>(ptr);
     delete xarray_ptr;
 }

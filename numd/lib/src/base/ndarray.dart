@@ -41,11 +41,10 @@ class ndarray implements Finalizable {
 
   factory ndarray.fromShape(List<int> shape, double filling) {
     Pointer<Int64> _shape_c = intListToCArray(shape);
-
+    print(shape.length);
     Pointer<Void> arrPtr =
         xtensorNdArray.createXArray(shape.length, _shape_c, filling);
     calloc.free(_shape_c);
-
     final _ndArray = ndarray._(arrPtr);
     _finalizer.attach(_ndArray, Pointer.fromAddress(_ndArray.arrPtr.address));
     return _ndArray;
@@ -53,7 +52,6 @@ class ndarray implements Finalizable {
 
   factory ndarray.fromList(List mylist) {
     List<int> listShape = __getListOfListSize(mylist, []);
-
     ndarray array = ndarray.fromShape(listShape, 0);
 
     for (List<int> idx in ShapeIterator(listShape)) {
@@ -188,8 +186,6 @@ class ndarray implements Finalizable {
     for (int i in Range(size)) {
       reducedData[i] = flat[i];
     }
-    print(reducedData);
-    print(shape);
     return reducedData;
   }
 
@@ -221,19 +217,7 @@ class ndarray implements Finalizable {
   @override
   String toString() {
     xtensorNdArray.printArray(arrPtr);
-    return "test";
-  }
-
-  // garbage collection seems to only collect at the end of the program.
-  // classes having a longer lifetime than whished for ...
-
-  // still some issues here, finalizer still removes extra time after this is called
-  // reason unclear.
-  // TODO more testing.
-  void dispose() {
-    _finalizer.detach(this);
-    xtensorNdArray.deleteXArray(arrPtr);
-    arrPtr = nullptr;
+    return "";
   }
 }
 
