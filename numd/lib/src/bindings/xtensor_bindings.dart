@@ -6,7 +6,6 @@ class XtensorBindings {
   static final XtensorBindings __instance = XtensorBindings.__new__();
   late final DynamicLibrary xTensorLib;
   factory XtensorBindings() {
-    print("loading instace");
     return __instance;
   }
 
@@ -21,7 +20,6 @@ class XtensorBindings {
       libraryPath = path.join(Directory.current.path, '..', 'numd', 'clib',
           'libxtensor_dart_ffi.dll');
     }
-    print("bindings loaded");
     xTensorLib = DynamicLibrary.open(libraryPath);
   }
 }
