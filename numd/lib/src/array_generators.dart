@@ -1,15 +1,15 @@
 import 'package:numd/src/base/ndarray.dart';
 
 ndarray empty(List<int> shape) {
-  return ndarray.fromShape(shape, 0);
+  return ndarray.fromShape(shape);
 }
 
 ndarray zeros(List<int> shape) {
-  return ndarray.fromShape(shape, 0);
+  return ndarray.fromShape(shape);
 }
 
 ndarray ones(List<int> shape) {
-  return ndarray.fromShape(shape, 1);
+  return ndarray.fromShape(shape, filling: 1);
 }
 
 ndarray linspace(double start, double stop, int n) {

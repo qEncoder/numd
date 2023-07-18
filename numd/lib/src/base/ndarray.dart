@@ -31,28 +31,27 @@ class ndarray implements Finalizable {
 
   ndarray._(this.arrPtr) {
     flat = ndArrayFlat(this);
+    _finalizer.attach(this, Pointer.fromAddress(arrPtr.address));
   }
 
   factory ndarray.fromPointer(Pointer<Void> arrPtr) {
     final _ndArray = ndarray._(arrPtr);
-    _finalizer.attach(_ndArray, Pointer.fromAddress(_ndArray.arrPtr.address));
     return _ndArray;
   }
 
-  factory ndarray.fromShape(List<int> shape, double filling) {
+  factory ndarray.fromShape(List<int> shape, {double filling = 0}) {
     Pointer<Int64> _shape_c = intListToCArray(shape);
     print(shape.length);
     Pointer<Void> arrPtr =
         xtensorNdArray.createXArray(shape.length, _shape_c, filling);
     calloc.free(_shape_c);
     final _ndArray = ndarray._(arrPtr);
-    _finalizer.attach(_ndArray, Pointer.fromAddress(_ndArray.arrPtr.address));
     return _ndArray;
   }
 
   factory ndarray.fromList(List mylist) {
     List<int> listShape = __getListOfListSize(mylist, []);
-    ndarray array = ndarray.fromShape(listShape, 0);
+    ndarray array = ndarray.fromShape(listShape);
 
     for (List<int> idx in ShapeIterator(listShape)) {
       dynamic listValue = mylist;

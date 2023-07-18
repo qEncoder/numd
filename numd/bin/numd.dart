@@ -11,7 +11,7 @@ nd.ndarray get2Darray() {
 void main(List<String> args) {
   // var a = nd.ones([10]);
   // print(a[0]);
-  var a = ndarray.fromShape([100, 100], 0);
+  var a = ndarray.fromShape([100, 100]);
   // var b = get2Darray();
   // var c = nd.ndarray.fromList([1.0, 2.0, 3.0]);
   // print(b[0]);
