@@ -19,6 +19,12 @@ class Slice {
   }
 
   int get size => (stop < 0) ? -1 : stop - start;
+
+  @override
+  int get hashCode {
+    List<int> h = [start, stop];
+    return Object.hashAll(h);
+  }
 }
 
 class ndarray implements Finalizable {
