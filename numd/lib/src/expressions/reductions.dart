@@ -2,10 +2,10 @@ import 'dart:ffi';
 
 import 'package:ffi/ffi.dart';
 import 'package:numd/src/base/ndarray.dart';
-import 'package:numd/src/bindings/xtensor_expressions_bindings.dart';
+import 'package:numd/src/bindings/numd_bindings.dart';
+import 'package:numd/src/bindings/numd_dynamic_lib.dart';
 
 dynamic _reduction(ndarray array, Function func, {dynamic axis}) {
-  ndarray result;
   if (axis == null) {
     return _reduction(array, func,
         axis: List<int>.generate(array.ndim, (idx) => idx));
@@ -17,7 +17,7 @@ dynamic _reduction(ndarray array, Function func, {dynamic axis}) {
     for (var i = 0; i < axis.length; i++) {
       axes[i] = axis[i];
     }
-    result = ndarray.fromPointer(func(array.arrPtr, axes, axis.length));
+    ndarray result = ndarray.fromPointer(func(array.arrPtr, axes, axis.length));
     calloc.free(axes);
 
     if (result.size == 1) {
@@ -32,18 +32,22 @@ dynamic average(ndarray array, {dynamic axis}) {
   return mean(array, axis: axis);
 }
 
-dynamic mean(ndarray array, {dynamic axis}) {
-  return _reduction(array, XtensorExpressions().mean, axis: axis);
+dynamic mean(ndarray array, {List<int>? axis}) {
+  return _reduction(array, NumdBindings(NumdDynamicLib().xTensorLib).mean,
+      axis: axis);
 }
 
 dynamic min(ndarray array, {dynamic axis}) {
-  return _reduction(array, XtensorExpressions().min, axis: axis);
+  return _reduction(array, NumdBindings(NumdDynamicLib().xTensorLib).min,
+      axis: axis);
 }
 
 dynamic max(ndarray array, {dynamic axis}) {
-  return _reduction(array, XtensorExpressions().max, axis: axis);
+  return _reduction(array, NumdBindings(NumdDynamicLib().xTensorLib).max,
+      axis: axis);
 }
 
 ndarray normalize(ndarray array) {
-  return ndarray.fromPointer(XtensorExpressions().normalize(array.arrPtr));
+  return ndarray.fromPointer(
+      NumdBindings(NumdDynamicLib().xTensorLib).normalize(array.arrPtr));
 }

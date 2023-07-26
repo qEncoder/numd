@@ -1,3 +1,0 @@
-/home/stephan/Desktop/Graphs/numd/clib/CMakeFiles/xtensor_dart_ffi.dir
-/home/stephan/Desktop/Graphs/numd/clib/CMakeFiles/edit_cache.dir
-/home/stephan/Desktop/Graphs/numd/clib/CMakeFiles/rebuild_cache.dir

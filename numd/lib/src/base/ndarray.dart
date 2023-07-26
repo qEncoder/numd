@@ -2,7 +2,9 @@ import 'dart:typed_data';
 
 import 'package:collection/collection.dart';
 import 'package:numd/src/base/ndarray_flat.dart';
-import 'package:numd/src/bindings/xtensor_ndarray_bindings.dart';
+import 'package:numd/src/bindings/numd_bindings.dart';
+
+import 'package:numd/src/bindings/numd_dynamic_lib.dart';
 
 import 'dart:ffi';
 import 'package:ffi/ffi.dart';
@@ -31,9 +33,9 @@ class ndarray implements Finalizable {
   Pointer<Void> arrPtr;
   late final ndArrayFlat flat;
 
-  static final XtensorNdArray xtensorNdArray = XtensorNdArray();
-  static final _finalizer =
-      NativeFinalizer(XtensorNdArray().deleteXArrayNative);
+  static final NumdBindings xtensorNdArray =
+      NumdBindings(NumdDynamicLib().xTensorLib);
+  static final _finalizer = NativeFinalizer(xtensorNdArray.delete_xarrayPtr);
 
   ndarray._(this.arrPtr) {
     flat = ndArrayFlat(this);
@@ -47,9 +49,8 @@ class ndarray implements Finalizable {
 
   factory ndarray.fromShape(List<int> shape, {double filling = 0}) {
     Pointer<Int64> _shape_c = intListToCArray(shape);
-    print(shape.length);
     Pointer<Void> arrPtr =
-        xtensorNdArray.createXArray(shape.length, _shape_c, filling);
+        xtensorNdArray.create_xarray(shape.length, _shape_c, filling);
     calloc.free(_shape_c);
     final _ndArray = ndarray._(arrPtr);
     return _ndArray;
@@ -80,15 +81,15 @@ class ndarray implements Finalizable {
     }
   }
 
-  int get size => xtensorNdArray.getSize(arrPtr);
-  int get ndim => xtensorNdArray.getNDim(arrPtr);
+  int get size => xtensorNdArray.get_size(arrPtr);
+  int get ndim => xtensorNdArray.get_ndim(arrPtr);
 
   ndarray get T => ndarray.fromPointer(xtensorNdArray.transpose(arrPtr));
 
   List<int> get shape {
     List<int> _shape = [];
     Pointer<Int64> _shape_c = calloc<Int64>(ndim);
-    xtensorNdArray.getShape(arrPtr, _shape_c);
+    xtensorNdArray.get_shape(arrPtr, _shape_c);
     for (var i = 0; i < ndim; i++) {
       _shape.add(_shape_c[i]);
     }
@@ -99,10 +100,10 @@ class ndarray implements Finalizable {
   ndarray operator +(dynamic other) {
     if (other is ndarray) {
       return ndarray
-          .fromPointer(xtensorNdArray.addArrays(arrPtr, other.arrPtr));
+          .fromPointer(xtensorNdArray.add_arrays(arrPtr, other.arrPtr));
     } else if (other is int || other is double) {
       return ndarray
-          .fromPointer(xtensorNdArray.addDouble(arrPtr, other.toDouble()));
+          .fromPointer(xtensorNdArray.add_double(arrPtr, other.toDouble()));
     } else {
       throw "Type ${other.runtimeType} is not supported for an addition operation";
     }
@@ -111,10 +112,10 @@ class ndarray implements Finalizable {
   ndarray operator -(dynamic other) {
     if (other is ndarray) {
       return ndarray
-          .fromPointer(xtensorNdArray.substractArrays(arrPtr, other.arrPtr));
+          .fromPointer(xtensorNdArray.substract_arrays(arrPtr, other.arrPtr));
     } else if (other is int || other is double) {
       return ndarray.fromPointer(
-          xtensorNdArray.substractDouble(arrPtr, other.toDouble()));
+          xtensorNdArray.substract_double(arrPtr, other.toDouble()));
     } else {
       throw "Type ${other.runtimeType} is not supported for an addition operation";
     }
@@ -123,10 +124,10 @@ class ndarray implements Finalizable {
   ndarray operator *(dynamic other) {
     if (other is ndarray) {
       return ndarray
-          .fromPointer(xtensorNdArray.multiplyArrays(arrPtr, other.arrPtr));
+          .fromPointer(xtensorNdArray.multiply_arrays(arrPtr, other.arrPtr));
     } else if (other is int || other is double) {
-      return ndarray
-          .fromPointer(xtensorNdArray.multiplyDouble(arrPtr, other.toDouble()));
+      return ndarray.fromPointer(
+          xtensorNdArray.multiply_double(arrPtr, other.toDouble()));
     } else {
       throw "Type ${other.runtimeType} is not supported for an addition operation";
     }
@@ -135,10 +136,10 @@ class ndarray implements Finalizable {
   ndarray operator /(dynamic other) {
     if (other is ndarray) {
       return ndarray
-          .fromPointer(xtensorNdArray.divideArrays(arrPtr, other.arrPtr));
+          .fromPointer(xtensorNdArray.divide_arrays(arrPtr, other.arrPtr));
     } else if (other is int || other is double) {
       return ndarray
-          .fromPointer(xtensorNdArray.divideDouble(arrPtr, other.toDouble()));
+          .fromPointer(xtensorNdArray.divide_double(arrPtr, other.toDouble()));
     } else {
       throw "Type ${other.runtimeType} is not supported for an addition operation";
     }
@@ -148,7 +149,7 @@ class ndarray implements Finalizable {
     var (c_slice_list, nSlices) = idx_to_slices(idx);
 
     ndarray arr = ndarray
-        .fromPointer(xtensorNdArray.sliceArray(arrPtr, c_slice_list, nSlices));
+        .fromPointer(xtensorNdArray.slice_array(arrPtr, c_slice_list, nSlices));
     calloc.free(c_slice_list);
 
     if (arr.size == 1) {
@@ -161,10 +162,10 @@ class ndarray implements Finalizable {
     var (c_slice_list, nSlices) = idx_to_slices(idx);
 
     if (other is ndarray) {
-      xtensorNdArray.assignArrayToSlice(
+      xtensorNdArray.assign_array_to_slice(
           arrPtr, other.arrPtr, c_slice_list, nSlices);
     } else if (other is int || other is double) {
-      xtensorNdArray.assignDoubleToSlice(
+      xtensorNdArray.assign_double_to_slice(
           arrPtr, other.toDouble(), c_slice_list, nSlices);
     } else {
       throw "Type ${other.runtimeType} is not supported for an addition operation";
@@ -198,12 +199,12 @@ class ndarray implements Finalizable {
   int get hashCode =>
       Object.hash(Object.hashAll(__getReducedData()), Object.hashAll(shape));
 
-  (Pointer<c_slice>, int) idx_to_slices(idx) {
+  (Pointer<slice>, int) idx_to_slices(idx) {
     if (idx is! List) {
       idx = [idx];
     }
 
-    Pointer<c_slice> c_slice_list = calloc<c_slice>(idx.length);
+    Pointer<slice> c_slice_list = calloc<slice>(idx.length);
     for (var i = 0; i < idx.length; i++) {
       if (idx[i] is int) {
         c_slice_list[i].start = idx[i];
@@ -221,7 +222,7 @@ class ndarray implements Finalizable {
   // TODO get chars from c api.
   @override
   String toString() {
-    xtensorNdArray.printArray(arrPtr);
+    xtensorNdArray.print_array(arrPtr);
     return "";
   }
 }

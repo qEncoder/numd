@@ -1,1 +1,0 @@
-/usr/bin/c++ -fPIC -shared -Wl,-soname,libxtensor_dart_ffi.so.1 -o libxtensor_dart_ffi.so.0.0.1 CMakeFiles/xtensor_dart_ffi.dir/xarray.cpp.o  -lfftw3 
