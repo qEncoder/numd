@@ -7,7 +7,9 @@ project(numd_library VERSION 0.0.1 LANGUAGES CXX C)
 
 # header files for xtensor on OS X installed via brew.
 include_directories(/usr/local/Cellar/xtensor/0.24.6/include)
-
+include_directories(/usr/local/Cellar/fftw/3.3.10_1/include)
+link_directories(/usr/local/Cellar/fftw/3.3.10_1/lib)
+# hearder file for xtensor-fftw are installed here
 include_directories(~/.local/include/)
 
 find_package(xtl REQUIRED)
