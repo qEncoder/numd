@@ -9,7 +9,6 @@ class NumdDynamicLib {
   }
 
   NumdDynamicLib.__new__() {
-    // TODO find the right way to do this when releasing.
     String library = 'libnumd.so';
     if (Platform.isMacOS) {
       library = 'libnumd.dylib';
