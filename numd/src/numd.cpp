@@ -54,7 +54,7 @@ FFI_PLUGIN_EXPORT xt::xstrided_slice_vector generate_array_slices(slice* slices,
         if(slices[i].noRange == true){
             // std::cout << "int slice with value :: " << slices[i].start << std::endl;
             sv.push_back(slices[i].start);
-        }else if (slices[i].start == 0 and slices[i].stop==-1) {
+        }else if (slices[i].start == 0 && slices[i].stop==-1) {
             sv.push_back( xt::all());
             // std::cout << "slice throug all" << std::endl;
         }else{

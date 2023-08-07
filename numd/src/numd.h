@@ -1,3 +1,5 @@
+#define NOMINMAX before #include "windows.h"
+
 #ifndef xarray_ffi_H // include guard
 #define xarray_ffi_H
 

@@ -13,8 +13,9 @@ class NumdDynamicLib {
     if (Platform.isMacOS) {
       library = 'libnumd.dylib';
     } else if (Platform.isWindows) {
-      library = 'libnumd.dll';
+      library = 'numd.dll';
     }
+    print(library);
     xTensorLib = DynamicLibrary.open(library);
   }
 }

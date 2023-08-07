@@ -1,6 +1,3 @@
-# The Flutter tooling requires that developers have CMake 3.10 or later
-# installed. You should not increase this version, as doing so will cause
-# the plugin to fail to compile for some customers of the plugin.
 cmake_minimum_required(VERSION 3.10)
 
 project(numd_library VERSION 0.0.1 LANGUAGES CXX C)
@@ -9,19 +6,43 @@ project(numd_library VERSION 0.0.1 LANGUAGES CXX C)
 include_directories(/usr/local/Cellar/xtensor/0.24.6/include)
 include_directories(/usr/local/Cellar/fftw/3.3.10_1/include)
 link_directories(/usr/local/Cellar/fftw/3.3.10_1/lib)
+
+IF (WIN32)
+link_directories(${CMAKE_CURRENT_SOURCE_DIR}/c_lib/fftw/3.5.5/lib)
+
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/c_lib/xtensor/0.24.6/include)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/c_lib/xtl/0.7.4/include)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/c_lib/fftw/3.5.5/include)
+
+set(
+    xtl_DIR
+    ${CMAKE_CURRENT_SOURCE_DIR}/c_lib/xtl/0.7.4/share/cmake/xtl
+    CACHE STRING "" FORCE
+)
+
+set(
+    xtensor_DIR
+    ${CMAKE_CURRENT_SOURCE_DIR}/c_lib/xtensor/0.24.6/share/cmake/xtensor
+    CACHE STRING "" FORCE
+)
+ENDIF()
+
+
+
 # hearder file for xtensor-fftw are installed here
 include_directories(~/.local/include/)
 
 find_package(xtl REQUIRED)
 find_package(xtensor REQUIRED)
 
-
 add_library(numd SHARED
   "numd.cpp"
 )
 
+target_compile_features (numd PUBLIC cxx_std_17)
+
 target_link_libraries(numd xtensor xtensor::optimize)
-target_link_libraries(numd fftw3)
+target_link_libraries(numd libfftw3-3)
 
 set_target_properties(numd PROPERTIES
   LINKER_LANGUAGE CXX
