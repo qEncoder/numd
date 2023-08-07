@@ -8,41 +8,44 @@ include_directories(/usr/local/Cellar/fftw/3.3.10_1/include)
 link_directories(/usr/local/Cellar/fftw/3.3.10_1/lib)
 
 IF (WIN32)
-link_directories(${CMAKE_CURRENT_SOURCE_DIR}/c_lib/fftw/3.5.5/lib)
+  link_directories(${CMAKE_CURRENT_SOURCE_DIR}/c_lib/fftw/3.5.5/lib)
 
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/c_lib/xtensor/0.24.6/include)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/c_lib/xtl/0.7.4/include)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/c_lib/fftw/3.5.5/include)
+  include_directories(${CMAKE_CURRENT_SOURCE_DIR}/c_lib/xtensor/0.24.6/include)
+  include_directories(${CMAKE_CURRENT_SOURCE_DIR}/c_lib/xtl/0.7.4/include)
+  include_directories(${CMAKE_CURRENT_SOURCE_DIR}/c_lib/fftw/3.5.5/include)
 
-set(
-    xtl_DIR
-    ${CMAKE_CURRENT_SOURCE_DIR}/c_lib/xtl/0.7.4/share/cmake/xtl
-    CACHE STRING "" FORCE
-)
+  set(
+      xtl_DIR
+      ${CMAKE_CURRENT_SOURCE_DIR}/c_lib/xtl/0.7.4/share/cmake/xtl
+      CACHE STRING "" FORCE
+  )
 
-set(
-    xtensor_DIR
-    ${CMAKE_CURRENT_SOURCE_DIR}/c_lib/xtensor/0.24.6/share/cmake/xtensor
-    CACHE STRING "" FORCE
-)
+  set(
+      xtensor_DIR
+      ${CMAKE_CURRENT_SOURCE_DIR}/c_lib/xtensor/0.24.6/share/cmake/xtensor
+      CACHE STRING "" FORCE
+  )
+
+
+else()
+  # hearder file for xtensor-fftw are installed here
+  include_directories(~/.local/include/)
 ENDIF()
 
-
-
-# hearder file for xtensor-fftw are installed here
-include_directories(~/.local/include/)
 
 find_package(xtl REQUIRED)
 find_package(xtensor REQUIRED)
 
-add_library(numd SHARED
-  "numd.cpp"
-)
-
-target_compile_features (numd PUBLIC cxx_std_17)
+add_library(numd SHARED "numd.cpp")
 
 target_link_libraries(numd xtensor xtensor::optimize)
-target_link_libraries(numd libfftw3-3)
+if(WIN32)
+  target_link_libraries(numd libfftw3-3)
+else()
+  target_link_libraries(numd fftw3)
+endif()
+
+target_compile_features (numd PUBLIC cxx_std_17)
 
 set_target_properties(numd PROPERTIES
   LINKER_LANGUAGE CXX
