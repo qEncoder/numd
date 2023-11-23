@@ -235,10 +235,36 @@ FFI_PLUGIN_EXPORT void* max(void* array, int64_t* axis, int n_axis){
     return static_cast<void *>(new_arr);
 }
 
+FFI_PLUGIN_EXPORT void* nanmin(void* array, int64_t* axis, int n_axis){
+    xarray* _array = static_cast<xarray *>(array);
+    
+    std::vector<int> myvec;
+    for (size_t i = 0; i < n_axis; i++)
+        myvec.push_back(axis[i]);
+
+    xarray* new_arr = new xarray;
+    *new_arr = xt::nanmin(*_array, myvec);
+
+    return static_cast<void *>(new_arr);
+}
+
+FFI_PLUGIN_EXPORT void* nanmax(void* array, int64_t* axis, int n_axis){
+    xarray* _array = static_cast<xarray *>(array);
+    
+    std::vector<int> myvec;
+    for (size_t i = 0; i < n_axis; i++)
+        myvec.push_back(axis[i]);
+
+    xarray* new_arr = new xarray;
+    *new_arr = xt::nanmax(*_array, myvec);
+
+    return static_cast<void *>(new_arr);
+}
+
 FFI_PLUGIN_EXPORT void* normalize(void* array){
     xarray* _array = static_cast<xarray *>(array);
-    xarray min = xt::amin(*_array);
-    xarray max = xt::amax(*_array);
+    xarray min = xt::nanmin(*_array);
+    xarray max = xt::nanmax(*_array);
 
     double minVal = min.flat(0);
     double maxVal = max.flat(0);

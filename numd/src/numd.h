@@ -34,7 +34,9 @@ struct histogram_pointers{
 
 typedef struct histogram_pointers histogram_pointers;
 
+#ifdef __cplusplus
 extern "C" {
+#endif
     FFI_PLUGIN_EXPORT void* create_xarray(int ndim, int64_t* shape, double fill);
     FFI_PLUGIN_EXPORT void delete_xarray(void* ptr);
 
@@ -65,6 +67,8 @@ extern "C" {
     FFI_PLUGIN_EXPORT void* mean(void* array, int64_t* axis, int n_axis);
     FFI_PLUGIN_EXPORT void* min(void* array, int64_t* axis, int n_axis);
     FFI_PLUGIN_EXPORT void* max(void* array, int64_t* axis, int n_axis);
+    FFI_PLUGIN_EXPORT void* nanmin(void* array, int64_t* axis, int n_axis);
+    FFI_PLUGIN_EXPORT void* nanmax(void* array, int64_t* axis, int n_axis);
     FFI_PLUGIN_EXPORT void* normalize(void* array);
 
     FFI_PLUGIN_EXPORT void* rfft(void* array);
@@ -74,6 +78,8 @@ extern "C" {
     FFI_PLUGIN_EXPORT histogram_pointers histogram(void* array, int nbins);
 
     FFI_PLUGIN_EXPORT void print_array(void* array);
+#ifdef __cplusplus
 }
+#endif
 
 #endif

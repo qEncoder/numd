@@ -47,6 +47,16 @@ dynamic max(ndarray array, {dynamic axis}) {
       axis: axis);
 }
 
+dynamic nanmin(ndarray array, {dynamic axis}) {
+  return _reduction(array, NumdBindings(NumdDynamicLib().xTensorLib).nanmin,
+      axis: axis);
+}
+
+dynamic nanmax(ndarray array, {dynamic axis}) {
+  return _reduction(array, NumdBindings(NumdDynamicLib().xTensorLib).nanmax,
+      axis: axis);
+}
+
 ndarray normalize(ndarray array) {
   return ndarray.fromPointer(
       NumdBindings(NumdDynamicLib().xTensorLib).normalize(array.arrPtr));

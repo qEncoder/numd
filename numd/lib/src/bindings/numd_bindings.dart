@@ -26,7 +26,6 @@ class NumdBindings {
           lookup)
       : _lookup = lookup;
 
-  /// extern "C" {
   ffi.Pointer<ffi.Void> create_xarray(
     int ndim,
     ffi.Pointer<ffi.Int64> shape,
@@ -414,6 +413,46 @@ class NumdBindings {
           ffi.Pointer<ffi.Void> Function(
               ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Int64>, ffi.Int)>>('max');
   late final _max = _maxPtr.asFunction<
+      ffi.Pointer<ffi.Void> Function(
+          ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Int64>, int)>();
+
+  ffi.Pointer<ffi.Void> nanmin(
+    ffi.Pointer<ffi.Void> array,
+    ffi.Pointer<ffi.Int64> axis,
+    int n_axis,
+  ) {
+    return _nanmin(
+      array,
+      axis,
+      n_axis,
+    );
+  }
+
+  late final _nanminPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Pointer<ffi.Void> Function(ffi.Pointer<ffi.Void>,
+              ffi.Pointer<ffi.Int64>, ffi.Int)>>('nanmin');
+  late final _nanmin = _nanminPtr.asFunction<
+      ffi.Pointer<ffi.Void> Function(
+          ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Int64>, int)>();
+
+  ffi.Pointer<ffi.Void> nanmax(
+    ffi.Pointer<ffi.Void> array,
+    ffi.Pointer<ffi.Int64> axis,
+    int n_axis,
+  ) {
+    return _nanmax(
+      array,
+      axis,
+      n_axis,
+    );
+  }
+
+  late final _nanmaxPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Pointer<ffi.Void> Function(ffi.Pointer<ffi.Void>,
+              ffi.Pointer<ffi.Int64>, ffi.Int)>>('nanmax');
+  late final _nanmax = _nanmaxPtr.asFunction<
       ffi.Pointer<ffi.Void> Function(
           ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Int64>, int)>();
 

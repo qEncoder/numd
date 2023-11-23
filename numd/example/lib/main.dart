@@ -22,14 +22,15 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
-    sumResult = numd.ndarray.fromList([10, 2, 20, 100, 50]);
-    sumResult = numd.linspace(0, 100, 20);
+    sumResult = numd.ndarray.fromList([10, 2, 20, 100, double.nan]);
+    // sumResult = numd.linspace(0, 100, 20);
     print(sumResult[0]);
     print(sumResult[1]);
     print(sumResult[2]);
     print(numd.rFFT(sumResult));
     print(numd.mean(sumResult));
-    // average = numd.min(sumResult);
+    average = numd.nanmax(sumResult);
+    print(average);
     // sumAsyncResult = numd.sumAsync(3, 4);
   }
 
