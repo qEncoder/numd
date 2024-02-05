@@ -86,6 +86,15 @@ class ndarray implements Finalizable {
 
   ndarray get T => ndarray.fromPointer(xtensorNdArray.transpose(arrPtr));
 
+  void reshape(List<int> shape) {
+    if (shape.reduce((a, b) => a * b) != size) {
+      throw "New shape must be compatible with the original shape";
+    }
+    Pointer<Int64> _shape_c = intListToCArray(shape);
+    xtensorNdArray.reshape(arrPtr, _shape_c, shape.length);
+    calloc.free(_shape_c);
+  }
+
   List<int> get shape {
     List<int> _shape = [];
     Pointer<Int64> _shape_c = calloc<Int64>(ndim);

@@ -15,7 +15,6 @@ class NumdDynamicLib {
     } else if (Platform.isWindows) {
       library = 'numd.dll';
     }
-    print(library);
     xTensorLib = DynamicLibrary.open(library);
   }
 }

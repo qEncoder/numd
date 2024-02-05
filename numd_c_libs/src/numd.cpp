@@ -52,18 +52,33 @@ FFI_PLUGIN_EXPORT xt::xstrided_slice_vector generate_array_slices(slice* slices,
     xt::xstrided_slice_vector sv;
     for (size_t i = 0; i < n_slices; i++){
         if(slices[i].noRange == true){
-            // std::cout << "int slice with value :: " << slices[i].start << std::endl;
             sv.push_back(slices[i].start);
         }else if (slices[i].start == 0 && slices[i].stop==-1) {
             sv.push_back( xt::all());
-            // std::cout << "slice throug all" << std::endl;
         }else{
             sv.push_back( xt::range(slices[i].start, slices[i].stop));
-            // std::cout << "int slice with start :: " << slices[i].start <<" and stop :: " << slices[i].stop << std::endl;
-
         }
     }
     return sv;
+}
+
+FFI_PLUGIN_EXPORT void reshape(void* array, int64_t* shape, int ndim){
+    xarray* _array = static_cast<xarray *>(array);
+
+    std::vector<size_t> new_shape = {};
+    for (size_t i = 0; i < ndim; i++){
+        new_shape.push_back(shape[i]);
+    }
+
+    _array->reshape(new_shape);
+}
+
+FFI_PLUGIN_EXPORT void* swapaxes(void* array, int axis1, int axis2){
+    xarray* _array = static_cast<xarray *>(array);
+    
+    xarray* new_arr = new xarray;
+    *new_arr = xt::swapaxes(*_array, axis1, axis2);
+    return static_cast<void *>(new_arr);
 }
 
 FFI_PLUGIN_EXPORT void* slice_array(void* array, slice* slices, int n_slices){

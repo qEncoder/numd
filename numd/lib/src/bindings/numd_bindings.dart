@@ -26,116 +26,57 @@ class NumdBindings {
           lookup)
       : _lookup = lookup;
 
-  ffi.Pointer<ffi.Void> create_xarray(
-    int ndim,
-    ffi.Pointer<ffi.Int64> shape,
-    double fill,
-  ) {
-    return _create_xarray(
-      ndim,
-      shape,
-      fill,
-    );
+  ffi.Pointer<ffi.Void> create_xarray(int ndim, ffi.Pointer<ffi.Int64> shape, double fill){
+    return _create_xarray(ndim, shape, fill);
   }
 
-  late final _create_xarrayPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Pointer<ffi.Void> Function(
-              ffi.Int, ffi.Pointer<ffi.Int64>, ffi.Double)>>('create_xarray');
-  late final _create_xarray = _create_xarrayPtr.asFunction<
-      ffi.Pointer<ffi.Void> Function(int, ffi.Pointer<ffi.Int64>, double)>();
+  late final _create_xarrayPtr = _lookup< ffi.NativeFunction< ffi.Pointer<ffi.Void> Function(ffi.Int, ffi.Pointer<ffi.Int64>, ffi.Double)>>('create_xarray');
+  late final _create_xarray = _create_xarrayPtr.asFunction<ffi.Pointer<ffi.Void> Function(int, ffi.Pointer<ffi.Int64>, double)>();
 
-  void delete_xarray(
-    ffi.Pointer<ffi.Void> ptr,
-  ) {
-    return _delete_xarray(
-      ptr,
-    );
+  void delete_xarray(ffi.Pointer<ffi.Void> ptr) {
+    return _delete_xarray(ptr);
   }
 
-  late final delete_xarrayPtr =
-      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void>)>>(
-          'delete_xarray');
-  late final _delete_xarray =
-      delete_xarrayPtr.asFunction<void Function(ffi.Pointer<ffi.Void>)>();
+  late final delete_xarrayPtr =_lookup<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void>)>>('delete_xarray');
+  late final _delete_xarray = delete_xarrayPtr.asFunction<void Function(ffi.Pointer<ffi.Void>)>();
 
-  int get_ndim(
-    ffi.Pointer<ffi.Void> array,
-  ) {
-    return _get_ndim(
-      array,
-    );
+  int get_ndim(ffi.Pointer<ffi.Void> array,) {
+    return _get_ndim(array);
   }
 
-  late final _get_ndimPtr =
-      _lookup<ffi.NativeFunction<ffi.Int Function(ffi.Pointer<ffi.Void>)>>(
-          'get_ndim');
-  late final _get_ndim =
-      _get_ndimPtr.asFunction<int Function(ffi.Pointer<ffi.Void>)>();
+  late final _get_ndimPtr = _lookup<ffi.NativeFunction<ffi.Int Function(ffi.Pointer<ffi.Void>)>>('get_ndim');
+  late final _get_ndim = _get_ndimPtr.asFunction<int Function(ffi.Pointer<ffi.Void>)>();
 
-  int get_size(
-    ffi.Pointer<ffi.Void> array,
-  ) {
-    return _get_size(
-      array,
-    );
+  int get_size(ffi.Pointer<ffi.Void> array,) {
+    return _get_size(array,);
   }
 
-  late final _get_sizePtr =
-      _lookup<ffi.NativeFunction<ffi.Int Function(ffi.Pointer<ffi.Void>)>>(
-          'get_size');
-  late final _get_size =
-      _get_sizePtr.asFunction<int Function(ffi.Pointer<ffi.Void>)>();
+  late final _get_sizePtr =_lookup<ffi.NativeFunction<ffi.Int Function(ffi.Pointer<ffi.Void>)>>('get_size');
+  late final _get_size = _get_sizePtr.asFunction<int Function(ffi.Pointer<ffi.Void>)>();
 
-  void get_shape(
-    ffi.Pointer<ffi.Void> array,
-    ffi.Pointer<ffi.Int64> shape,
-  ) {
-    return _get_shape(
-      array,
-      shape,
-    );
+  void get_shape(ffi.Pointer<ffi.Void> array, ffi.Pointer<ffi.Int64> shape, ) {
+    return _get_shape(array,shape);
   }
 
-  late final _get_shapePtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Void Function(
-              ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Int64>)>>('get_shape');
-  late final _get_shape = _get_shapePtr.asFunction<
-      void Function(ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Int64>)>();
+  late final _get_shapePtr = _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Int64>)>>('get_shape');
+  late final _get_shape = _get_shapePtr.asFunction<void Function(ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Int64>)>();
 
-  ffi.Pointer<ffi.Void> slice_array(
-    ffi.Pointer<ffi.Void> array,
-    ffi.Pointer<slice> slices,
-    int n_slices,
-  ) {
-    return _slice_array(
-      array,
-      slices,
-      n_slices,
-    );
+  void reshape(ffi.Pointer<ffi.Void> array, ffi.Pointer<ffi.Int64> shape, int ndim){
+    return _reshape(array, shape, ndim);
   }
 
-  late final _slice_arrayPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Pointer<ffi.Void> Function(ffi.Pointer<ffi.Void>,
-              ffi.Pointer<slice>, ffi.Int)>>('slice_array');
-  late final _slice_array = _slice_arrayPtr.asFunction<
-      ffi.Pointer<ffi.Void> Function(
-          ffi.Pointer<ffi.Void>, ffi.Pointer<slice>, int)>();
+  late final _reshapePtr = _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void>,ffi.Pointer<ffi.Int64>, ffi.Int)>>('reshape');
+  late final _reshape = _reshapePtr.asFunction<void Function(ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Int64>, int)>();
 
-  void assign_array_to_slice(
-    ffi.Pointer<ffi.Void> array,
-    ffi.Pointer<ffi.Void> other_array,
-    ffi.Pointer<slice> slices,
-    int n_slices,
-  ) {
-    return _assign_array_to_slice(
-      array,
-      other_array,
-      slices,
-      n_slices,
-    );
+  ffi.Pointer<ffi.Void> slice_array(ffi.Pointer<ffi.Void> array, ffi.Pointer<slice> slices, int n_slices,) {
+    return _slice_array(array, slices, n_slices,);
+  }
+
+  late final _slice_arrayPtr = _lookup<ffi.NativeFunction<ffi.Pointer<ffi.Void> Function(ffi.Pointer<ffi.Void>,ffi.Pointer<slice>, ffi.Int)>>('slice_array');
+  late final _slice_array = _slice_arrayPtr.asFunction<ffi.Pointer<ffi.Void> Function(ffi.Pointer<ffi.Void>, ffi.Pointer<slice>, int)>();
+
+  void assign_array_to_slice(ffi.Pointer<ffi.Void> array, ffi.Pointer<ffi.Void> other_array, ffi.Pointer<slice> slices, int n_slices,) {
+    return _assign_array_to_slice(array, other_array, slices, n_slices);
   }
 
   late final _assign_array_to_slicePtr = _lookup<
@@ -167,19 +108,20 @@ class NumdBindings {
   late final _assign_double_to_slice = _assign_double_to_slicePtr.asFunction<
       void Function(ffi.Pointer<ffi.Void>, double, ffi.Pointer<slice>, int)>();
 
-  ffi.Pointer<ffi.Void> transpose(
-    ffi.Pointer<ffi.Void> array,
-  ) {
-    return _transpose(
-      array,
-    );
+  ffi.Pointer<ffi.Void> transpose(ffi.Pointer<ffi.Void> array, ) {
+    return _transpose( array,);
   }
 
-  late final _transposePtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Pointer<ffi.Void> Function(ffi.Pointer<ffi.Void>)>>('transpose');
-  late final _transpose = _transposePtr
-      .asFunction<ffi.Pointer<ffi.Void> Function(ffi.Pointer<ffi.Void>)>();
+  late final _transposePtr = _lookup<ffi.NativeFunction<ffi.Pointer<ffi.Void> Function(ffi.Pointer<ffi.Void>)>>('transpose');
+  late final _transpose = _transposePtr.asFunction<ffi.Pointer<ffi.Void> Function(ffi.Pointer<ffi.Void>)>();
+
+  ffi.Pointer<ffi.Void> swapaxes(ffi.Pointer<ffi.Void> array, int axis1, int axis2) {
+    return _swapaxes( array, axis1, axis2);
+  }
+
+  late final _swapaxesPtr = _lookup<ffi.NativeFunction<ffi.Pointer<ffi.Void> Function(ffi.Pointer<ffi.Void>, ffi.Int64, ffi.Int64)>>('swapaxes');
+  late final _swapaxes = _swapaxesPtr.asFunction<ffi.Pointer<ffi.Void> Function(ffi.Pointer<ffi.Void>, int, int)>();
+
 
   ffi.Pointer<ffi.Void> add_arrays(
     ffi.Pointer<ffi.Void> array_1,

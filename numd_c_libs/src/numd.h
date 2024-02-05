@@ -44,6 +44,9 @@ extern "C" {
     FFI_PLUGIN_EXPORT int get_size(void* array);
     FFI_PLUGIN_EXPORT void get_shape(void* array, int64_t* shape);
 
+    FFI_PLUGIN_EXPORT void reshape(void* array, int64_t* shape, int ndim);
+    FFI_PLUGIN_EXPORT void* swapaxes(void* array, int axis1, int axis2);
+    
     FFI_PLUGIN_EXPORT void* slice_array(void* array, slice* slices, int n_slices);
     FFI_PLUGIN_EXPORT void assign_array_to_slice(void* array, void* other_array, slice* slices, int n_slices);
     FFI_PLUGIN_EXPORT void assign_double_to_slice(void* array, double value, slice* slices, int n_slices);
