@@ -6,6 +6,15 @@ class Range extends Iterable {
   Iterator get iterator => RangeIterator(0, nValues, 1);
 }
 
+class RRange extends Iterable {
+  int start;
+  int stop;
+  RRange(this.start, this.stop);
+
+  @override
+  Iterator get iterator => RangeIterator(start, stop, 1);
+}
+
 class RangeIterator implements Iterator {
   int start;
   int stop;

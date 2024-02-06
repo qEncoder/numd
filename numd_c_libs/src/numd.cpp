@@ -81,6 +81,14 @@ FFI_PLUGIN_EXPORT void* swapaxes(void* array, int axis1, int axis2){
     return static_cast<void *>(new_arr);
 }
 
+FFI_PLUGIN_EXPORT void* flip(void* array, int axis){
+    xarray* _array = static_cast<xarray *>(array);
+    
+    xarray* new_arr = new xarray;
+    *new_arr = xt::flip(*_array, axis);
+    return static_cast<void *>(new_arr);
+}
+
 FFI_PLUGIN_EXPORT void* slice_array(void* array, slice* slices, int n_slices){
     xarray* _array = static_cast<xarray *>(array);
 

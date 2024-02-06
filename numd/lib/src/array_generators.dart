@@ -20,6 +20,14 @@ ndarray linspace(double start, double stop, int n) {
   return arr;
 }
 
+ndarray arange(int stop){
+  ndarray arr = ndarray.fromShape([stop]);
+  for (var i = 0; i < stop; i++) {
+    arr.flat[i] = i.toDouble();
+  }
+  return arr;
+}
+
 ndarray eye(n) {
   ndarray arr = zeros([n, n]);
   for (var i = 0; i < n; i++) {

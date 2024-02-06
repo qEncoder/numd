@@ -123,6 +123,13 @@ class NumdBindings {
   late final _swapaxes = _swapaxesPtr.asFunction<ffi.Pointer<ffi.Void> Function(ffi.Pointer<ffi.Void>, int, int)>();
 
 
+  ffi.Pointer<ffi.Void> flip(ffi.Pointer<ffi.Void> array, int axis) {
+    return _flip( array, axis);
+  }
+
+  late final _flipPtr = _lookup<ffi.NativeFunction<ffi.Pointer<ffi.Void> Function(ffi.Pointer<ffi.Void>, ffi.Int64)>>('flip');
+  late final _flip = _flipPtr.asFunction<ffi.Pointer<ffi.Void> Function(ffi.Pointer<ffi.Void>, int)>();
+
   ffi.Pointer<ffi.Void> add_arrays(
     ffi.Pointer<ffi.Void> array_1,
     ffi.Pointer<ffi.Void> array_2,

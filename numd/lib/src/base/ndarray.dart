@@ -196,7 +196,7 @@ class ndarray implements Finalizable {
     return false;
   }
 
-  Float64List __getReducedData() {
+  Float64List asTypedList() {
     Float64List reducedData = Float64List(size);
     for (int i in Range(size)) {
       reducedData[i] = flat[i];
@@ -206,7 +206,7 @@ class ndarray implements Finalizable {
 
   @override
   int get hashCode =>
-      Object.hash(Object.hashAll(__getReducedData()), Object.hashAll(shape));
+      Object.hash(Object.hashAll(asTypedList()), Object.hashAll(shape));
 
   (Pointer<slice>, int) idx_to_slices(idx) {
     if (idx is! List) {

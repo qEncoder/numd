@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
 
-import 'package:numd/numd.dart' as numd;
+import 'package:numd/numd.dart' as nd;
 
 void main() {
   runApp(const MyApp());
@@ -15,22 +15,35 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  late numd.ndarray sumResult;
+  late nd.ndarray sumResult;
   late double average;
   // late Future<int> sumAsyncResult;
 
   @override
   void initState() {
     super.initState();
-    sumResult = numd.ndarray.fromList([10, 2, 20, 100, double.nan]);
+    sumResult = nd.ndarray.fromList([10, 2, 20, double.nan]);
     // sumResult = numd.linspace(0, 100, 20);
+    print(nd.arange(10));
     print(sumResult[0]);
     print(sumResult[1]);
     print(sumResult[2]);
-    print(numd.rFFT(sumResult));
-    print(numd.mean(sumResult));
-    average = numd.nanmax(sumResult);
+    sumResult..reshape([2,2]);
+    print(sumResult);
+    sumResult = nd.swapaxes(sumResult, 0, 1);
+    print(sumResult);
+    sumResult = nd.flip(sumResult, 0);
+    print(sumResult);
+    sumResult.reshape([4]);
+    
+    print(nd.rFFT(sumResult));
+    print(nd.mean(sumResult));
+    average = nd.nanmax(sumResult);
     print(average);
+    for (final i in nd.RRange(0, 10)) {
+      print(i);
+    }
+    print(sumResult.asTypedList());
     // sumAsyncResult = numd.sumAsync(3, 4);
   }
 
