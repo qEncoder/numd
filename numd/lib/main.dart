@@ -23,7 +23,7 @@ class _MyAppState extends State<MyApp> {
     super.initState();
     sumResult = nd.ndarray.fromList([10, 2, 20, double.nan]);
     // sumResult = numd.linspace(0, 100, 20);
-    print(nd.arange(10)[Slice(0)]);
+    print(nd.arange(10)[Slice(-2,)]);
     print(nd.arange(10));
     // print(sumResult[0]);
     // print(sumResult[1]);

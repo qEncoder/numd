@@ -25,10 +25,12 @@ class Slice {
     return -1;
   }
 
-  int getStop(int shape){
-    if (stop == null) return shape;
-    if (stop! < 0) return shape + stop!;
-    return stop!;
+  Slice getFormattedSlice(int shape){
+    int newStart = start;
+    int newStop = stop ?? shape;
+    if (newStart < 0) newStart = shape + start;
+    if (newStop < 0) newStop = shape + stop!;
+    return Slice(newStart, newStop);
   }
 
   @override
@@ -229,8 +231,9 @@ class ndarray implements Finalizable {
         c_slice_list[i].stop = idx[i];
         c_slice_list[i].noRange = true;
       } else if (idx[i] is Slice) {
-        c_slice_list[i].start = idx[i].start;
-        c_slice_list[i].stop = idx[i].getStop(shape[i]);
+        Slice currentSlice = idx[i].getFormattedSlice(shape[i]);
+        c_slice_list[i].start = currentSlice.start;
+        c_slice_list[i].stop = currentSlice.stop!;
         c_slice_list[i].noRange = false;
       }
     }
