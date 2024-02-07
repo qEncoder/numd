@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'dart:async';
-
 import 'package:numd/numd.dart' as nd;
+import 'package:numd/src/base/ndarray.dart';
 
 void main() {
   runApp(const MyApp());
@@ -24,26 +23,27 @@ class _MyAppState extends State<MyApp> {
     super.initState();
     sumResult = nd.ndarray.fromList([10, 2, 20, double.nan]);
     // sumResult = numd.linspace(0, 100, 20);
+    print(nd.arange(10)[Slice(0)]);
     print(nd.arange(10));
-    print(sumResult[0]);
-    print(sumResult[1]);
-    print(sumResult[2]);
-    sumResult..reshape([2,2]);
-    print(sumResult);
-    sumResult = nd.swapaxes(sumResult, 0, 1);
-    print(sumResult);
-    sumResult = nd.flip(sumResult, 0);
-    print(sumResult);
-    sumResult.reshape([4]);
+    // print(sumResult[0]);
+    // print(sumResult[1]);
+    // print(sumResult[2]);
+    // sumResult..reshape([2,2]);
+    // print(sumResult);
+    // sumResult = nd.swapaxes(sumResult, 0, 1);
+    // print(sumResult);
+    // sumResult = nd.flip(sumResult, 0);
+    // print(sumResult);
+    // sumResult.reshape([4]);
     
-    print(nd.rFFT(sumResult));
-    print(nd.mean(sumResult));
-    average = nd.nanmax(sumResult);
-    print(average);
-    for (final i in nd.RRange(0, 10)) {
-      print(i);
-    }
-    print(sumResult.asTypedList());
+    // print(nd.rFFT(sumResult));
+    // print(nd.mean(sumResult));
+    // average = nd.nanmax(sumResult);
+    // print(average);
+    // for (final i in nd.RRange(0, 10)) {
+    //   print(i);
+    // }
+    // print(sumResult.asTypedList());
     // sumAsyncResult = numd.sumAsync(3, 4);
   }
 

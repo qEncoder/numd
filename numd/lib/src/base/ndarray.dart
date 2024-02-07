@@ -12,19 +12,28 @@ import 'package:numd/src/utility/iterators.dart';
 
 class Slice {
   int start;
-  int stop;
-  Slice(this.start, this.stop);
+  int? stop;
+  Slice(this.start, [this.stop]);
 
   @override
   String toString() {
     return "Slice of array, start : $start | stop : $stop";
   }
 
-  int get size => (stop < 0) ? -1 : stop - start;
+  int get size{
+    if (stop != null && stop! < 0) return stop! - start;
+    return -1;
+  }
+
+  int getStop(int shape){
+    if (stop == null) return shape;
+    if (stop! < 0) return shape + stop!;
+    return stop!;
+  }
 
   @override
   int get hashCode {
-    List<int> h = [start, stop];
+    List<int?> h = [start, stop];
     return Object.hashAll(h);
   }
 }
@@ -221,7 +230,7 @@ class ndarray implements Finalizable {
         c_slice_list[i].noRange = true;
       } else if (idx[i] is Slice) {
         c_slice_list[i].start = idx[i].start;
-        c_slice_list[i].stop = idx[i].stop;
+        c_slice_list[i].stop = idx[i].getStop(shape[i]);
         c_slice_list[i].noRange = false;
       }
     }
