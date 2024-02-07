@@ -21,7 +21,7 @@ class Slice {
   }
 
   int get size{
-    if (stop != null && stop! < 0) return stop! - start;
+    if (stop != null && stop! >= 0) return stop! - start;
     return -1;
   }
 
