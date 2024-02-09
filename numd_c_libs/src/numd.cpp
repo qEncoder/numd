@@ -335,17 +335,21 @@ FFI_PLUGIN_EXPORT void print_array(void* array){
     std::cout << *_array << std::endl;
 }
 
-FFI_PLUGIN_EXPORT histogram_pointers histogram(void* array, int nbins){
-    xarray* _array = static_cast<xarray *>(array);
+FFI_PLUGIN_EXPORT void* histogram_bin_edges(void* data, int nbins){
+    xarray* _data = static_cast<xarray *>(data);
+
+    xarray* bin_edges = new xarray;
+    *bin_edges = xt::histogram_bin_edges(*_data, std::size_t(nbins));
+    
+    return static_cast<void *>(bin_edges);
+}
+
+FFI_PLUGIN_EXPORT void* histogram_count(void* data, void* bin_edges){
+    xarray* _data = static_cast<xarray *>(data);
+    xarray* _bin_edges = static_cast<xarray *>(bin_edges);
 
     xarray* count = new xarray;
-    *count = xt::histogram(*_array, std::size_t(nbins));
-    xarray* bin_edges = new xarray;
-    *bin_edges = xt::histogram_bin_edges(*_array, std::size_t(nbins));
-
-    histogram_pointers hist_pointers = histogram_pointers();
-    hist_pointers.count = static_cast<void *>(count);
-    hist_pointers.bin_edges = static_cast<void *>(bin_edges);
-
-    return hist_pointers;
+    *count = xt::histogram(*_data, *_bin_edges);
+    
+    return static_cast<void *>(count);
 }

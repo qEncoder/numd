@@ -463,26 +463,21 @@ class NumdBindings {
   late final _rfftfreq =
       _rfftfreqPtr.asFunction<ffi.Pointer<ffi.Void> Function(int, double)>();
 
-  histogram_pointers histogram(
-    ffi.Pointer<ffi.Void> array,
-    int nbins,
-  ) {
-    return _histogram(
-      array,
-      nbins,
-    );
+  ffi.Pointer<ffi.Void> histogram_bin_edges(ffi.Pointer<ffi.Void> data, int nbins) {
+    return _histogram_bin_edges( data, nbins);
   }
 
-  late final _histogramPtr = _lookup<
-      ffi.NativeFunction<
-          histogram_pointers Function(
-              ffi.Pointer<ffi.Void>, ffi.Int)>>('histogram');
-  late final _histogram = _histogramPtr
-      .asFunction<histogram_pointers Function(ffi.Pointer<ffi.Void>, int)>();
+  late final _histogram_bin_edgesPtr = _lookup<ffi.NativeFunction<ffi.Pointer<ffi.Void> Function(ffi.Pointer<ffi.Void>, ffi.Int)>>('histogram_bin_edges');
+  late final _histogram_bin_edges = _histogram_bin_edgesPtr.asFunction<ffi.Pointer<ffi.Void> Function(ffi.Pointer<ffi.Void>, int)>();
 
-  void print_array(
-    ffi.Pointer<ffi.Void> array,
-  ) {
+  ffi.Pointer<ffi.Void> histogram_count(ffi.Pointer<ffi.Void> data, ffi.Pointer<ffi.Void> bin_edges) {
+    return _histogram_count( data, bin_edges);
+  }
+
+  late final _histogram_countPtr = _lookup<ffi.NativeFunction<ffi.Pointer<ffi.Void> Function(ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Void>)>>('histogram_count');
+  late final _histogram_count = _histogram_countPtr.asFunction<ffi.Pointer<ffi.Void> Function(ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Void>)>();
+
+  void print_array(ffi.Pointer<ffi.Void> array,) {
     return _print_array(
       array,
     );

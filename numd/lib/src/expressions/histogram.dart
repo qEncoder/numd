@@ -2,10 +2,18 @@ import 'package:numd/src/base/ndarray.dart';
 import 'package:numd/src/bindings/numd_bindings.dart';
 import 'package:numd/src/bindings/numd_dynamic_lib.dart';
 
-(ndarray count, ndarray bin_edges) histogram(ndarray arr, int nbins) {
-  histogram_pointers hist_pointer =
-      NumdBindings(NumdDynamicLib().xTensorLib).histogram(arr.arrPtr, nbins);
-  ndarray count = ndarray.fromPointer(hist_pointer.count);
-  ndarray bin_edges = ndarray.fromPointer(hist_pointer.bin_edges);
-  return (count, bin_edges);
+ndarray histogramBinEdges(ndarray data, int nbins) {
+  var binEdges = NumdBindings(NumdDynamicLib().xTensorLib).histogram_bin_edges(data.arrPtr, nbins);
+  return ndarray.fromPointer(binEdges);
+}
+
+ndarray histogramCount(ndarray data, ndarray binEdges) {
+  var count = NumdBindings(NumdDynamicLib().xTensorLib).histogram_count(data.arrPtr, binEdges.arrPtr);
+  return ndarray.fromPointer(count);
+}
+
+(ndarray count, ndarray binEdges) histogram(ndarray data, int nbins) {
+  ndarray binEdges = histogramBinEdges(data, nbins);
+  ndarray count = histogramCount(data, binEdges);
+  return (count, binEdges);
 }

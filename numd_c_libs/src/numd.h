@@ -26,14 +26,6 @@ struct slice{
 
 typedef struct slice slice;
 
-
-struct histogram_pointers{
-    void* count;
-    void* bin_edges;
-};
-
-typedef struct histogram_pointers histogram_pointers;
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -79,8 +71,9 @@ extern "C" {
     FFI_PLUGIN_EXPORT void* rfft2(void* array);
     FFI_PLUGIN_EXPORT void* rfftfreq(int64_t n, double d);
 
-    FFI_PLUGIN_EXPORT histogram_pointers histogram(void* array, int nbins);
-
+    FFI_PLUGIN_EXPORT void* histogram_bin_edges(void* array, int nbins);
+    FFI_PLUGIN_EXPORT void* histogram_count(void* data, void* bin_edges);
+    
     FFI_PLUGIN_EXPORT void print_array(void* array);
 #ifdef __cplusplus
 }
