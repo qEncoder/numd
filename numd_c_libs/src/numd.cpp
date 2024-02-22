@@ -1,6 +1,7 @@
 #include "numd.h"
 
 #include <vector>
+#include <cmath>
 #include <iostream>
 #include <xtensor/xarray.hpp>
 #include <xtensor/xhistogram.hpp>
@@ -352,4 +353,24 @@ FFI_PLUGIN_EXPORT void* histogram_count(void* data, void* bin_edges){
     *count = xt::histogram(*_data, *_bin_edges);
     
     return static_cast<void *>(count);
+}
+
+FFI_PLUGIN_EXPORT void* histogram_count_lin_bins(void* data, double min, double max, int nbins){
+    // faster algorithm for linearly spaced bins
+    xarray* _data = static_cast<xarray *>(data);
+    
+    xarray* counts = new xarray;
+    *counts = xt::zeros<double>({nbins});
+
+    double multiplier = 1/(max - min)*nbins;
+
+    for (size_t i = 0; i < _data->size(); i++){
+        double value = (*_data).flat(i);
+        if (!(value >= min && value <= max)) continue;
+        size_t index = (size_t) (value - min)*multiplier;
+        if (index == nbins) index--;
+        (*counts).flat(index)++;
+    }
+
+    return static_cast<void *>(counts);
 }

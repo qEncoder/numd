@@ -1,6 +1,7 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:numd/numd.dart' as nd;
-import 'package:numd/src/base/ndarray.dart';
 
 void main() {
   runApp(const MyApp());
@@ -21,10 +22,8 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
-    sumResult = nd.ndarray.fromList([10, 2, 20, double.nan]);
-    // sumResult = numd.linspace(0, 100, 20);
-    print(nd.arange(10)[Slice(-2,)]);
-    print(nd.arange(10));
+    sumResult = nd.ndarray.fromList([1, 2, 3, 4, 8 , 3, 2, 1, double.nan]);
+    print(generateHistogramCbar(sumResult, 8, 0, 8));
     // print(sumResult[0]);
     // print(sumResult[1]);
     // print(sumResult[2]);
@@ -74,6 +73,48 @@ class _MyAppState extends State<MyApp> {
                   textAlign: TextAlign.center,
                 ),
                 spacerSmall,
+                FilledButton(onPressed: (){Stopwatch stopwatch = Stopwatch();
+                          sumResult = nd.linspace(-1, 9, 1000*1500);
+                          int nbins = 100;
+                          int n = 10;
+
+                          stopwatch.start();
+                          
+                          for (int i in nd.Range(n)){
+                            var res = nd.histogramLinBin(sumResult, nbins, 0, 8);
+                            var out = (res.$1*(1/(nd.max(res.$1) as double))).asTypedList();
+                          }
+                          stopwatch.stop();
+                          print("Time c++: ${stopwatch.elapsedMilliseconds/n} ms");
+
+                          stopwatch.reset();
+
+                          stopwatch.start();
+                          for (int i in nd.Range(n)){
+                            var res = generateHistogramCbar(sumResult, nbins,0, 8);
+                          }
+                          stopwatch.stop();
+                          print("Time flutter: ${stopwatch.elapsedMilliseconds/n} ms");
+
+                          stopwatch.reset();
+                          
+                          
+                          stopwatch.start();
+                          for (int i in nd.Range(n)){
+                            var res = nd.histogramLinBin(sumResult, nbins, 0, 8);
+                            var out = (res.$1*(1/(nd.max(res.$1) as double))).asTypedList();
+                          }
+                          stopwatch.stop();
+                          print("Time c++ 2: ${stopwatch.elapsedMilliseconds/n} ms");
+                          stopwatch.reset();
+                          stopwatch.start();
+                          for (int i in nd.Range(1)){
+                            var res = nd.histogram(sumResult, nbins);
+                          }
+                          stopwatch.stop();
+                          print("Time c++ (original): ${stopwatch.elapsedMilliseconds/1} ms");
+
+                    }, child: Text("Run HIST")),
               ],
             ),
           ),
@@ -81,4 +122,36 @@ class _MyAppState extends State<MyApp> {
       ),
     );
   }
+}
+
+
+
+ Float64List generateHistogramCbar(nd.ndarray data, int nbins, double min, double max, ){
+  double multiplier = 1/(max - min)*nbins;
+
+  Float64List histCount = Float64List(nbins);
+  for (int i in nd.Range(data.size)){
+    double value = ((data.flat[i] - min)*multiplier);
+    if (value.isNaN) continue;
+    int index = value.toInt();
+    if (index < 0) continue;
+    if (index >= nbins){
+      if (data.flat[i] == max)	histCount[nbins-1] ++;
+			continue;
+    }
+    histCount[index]++;
+    // double item = data.flat[i];
+    // if (!(item >= min && item <= max)) continue;
+    // int index =  ((item - min)*multiplier).toInt();
+    // if (index == nbins) index--;
+    // histCount[index]++;
+
+  }
+
+  double maxCount = histCount.reduce((a, b) => (a > b) ? a : b);
+  for (int i in nd.Range(histCount.length)){
+    histCount[i] = histCount[i]/maxCount;
+  }
+
+  return histCount;
 }

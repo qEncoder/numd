@@ -73,7 +73,8 @@ extern "C" {
 
     FFI_PLUGIN_EXPORT void* histogram_bin_edges(void* array, int nbins);
     FFI_PLUGIN_EXPORT void* histogram_count(void* data, void* bin_edges);
-    
+    FFI_PLUGIN_EXPORT void* histogram_count_lin_bins(void* data, double min, double max, int nbins);
+
     FFI_PLUGIN_EXPORT void print_array(void* array);
 #ifdef __cplusplus
 }

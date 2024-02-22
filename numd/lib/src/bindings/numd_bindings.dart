@@ -477,6 +477,13 @@ class NumdBindings {
   late final _histogram_countPtr = _lookup<ffi.NativeFunction<ffi.Pointer<ffi.Void> Function(ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Void>)>>('histogram_count');
   late final _histogram_count = _histogram_countPtr.asFunction<ffi.Pointer<ffi.Void> Function(ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Void>)>();
 
+    ffi.Pointer<ffi.Void> histogram_count_lin_bins(ffi.Pointer<ffi.Void> data, double min, double max, int nbins) {
+    return _histogram_count_lin_bins(data, min, max, nbins);
+  }
+
+  late final _histogram_count_lin_binsPtr = _lookup<ffi.NativeFunction<ffi.Pointer<ffi.Void> Function(ffi.Pointer<ffi.Void>, ffi.Double, ffi.Double, ffi.Int)>>('histogram_count_lin_bins');
+  late final _histogram_count_lin_bins = _histogram_count_lin_binsPtr.asFunction<ffi.Pointer<ffi.Void> Function(ffi.Pointer<ffi.Void>, double, double, int)>();
+
   void print_array(ffi.Pointer<ffi.Void> array,) {
     return _print_array(
       array,
