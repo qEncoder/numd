@@ -1,6 +1,7 @@
 import 'package:numd/src/base/ndarray.dart';
-import 'package:numd/src/bindings/numd_dynamic_lib.dart';
+import 'package:numd/src/array_generators.dart';
 
+import 'package:numd/src/bindings/numd_dynamic_lib.dart';
 import 'package:numd/src/bindings/numd_bindings.dart';
 
 rFFT(ndarray array) {
@@ -18,6 +19,10 @@ rFFT2(ndarray array) {
 }
 
 rFFTfreq(int npoints, double distance) {
-  return ndarray.fromPointer(
-      NumdBindings(NumdDynamicLib().xTensorLib).rfftfreq(npoints, distance));
+  int npt_out = (npoints/2).floor()+1;
+  if (npoints % 2 == 0) { // even
+    return linspace(0, 0.5/distance, npt_out);
+  } else { // odd
+    return linspace(0, 0.5*(npoints-1)/npoints/distance, npt_out);
+  }
 }
