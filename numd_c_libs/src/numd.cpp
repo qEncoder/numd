@@ -367,7 +367,7 @@ FFI_PLUGIN_EXPORT void* histogram_count_lin_bins(void* data, double min, double 
     for (size_t i = 0; i < _data->size(); i++){
         double value = (*_data).flat(i);
         if (!(value >= min && value <= max)) continue;
-        size_t index = (size_t) (value - min)*multiplier;
+        int index = (int) ((value - min)*multiplier);
         if (index == nbins) index--;
         (*counts).flat(index)++;
     }
