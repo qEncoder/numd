@@ -3,10 +3,17 @@
 #
 
 list(APPEND FLUTTER_PLUGIN_LIST
+<<<<<<< HEAD
 )
 
 list(APPEND FLUTTER_FFI_PLUGIN_LIST
   numd_c_libs
+=======
+  numd_c_libs
+)
+
+list(APPEND FLUTTER_FFI_PLUGIN_LIST
+>>>>>>> bef3b889d636b5a8648f8035a48536d95db7d647
 )
 
 set(PLUGIN_BUNDLED_LIBRARIES)
