@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 
-project(numd_library VERSION 0.0.1 LANGUAGES CXX C)
+project(numd_c_libs_library VERSION 0.0.1 LANGUAGES CXX C)
 
 # header files for xtensor on OS X installed via brew.
 include_directories(/opt/homebrew/opt/xtensor/include)
@@ -36,21 +36,21 @@ ENDIF()
 find_package(xtl REQUIRED)
 find_package(xtensor REQUIRED)
 
-add_library(numd SHARED "numd.cpp")
+add_library(numd_c_libs SHARED "numd.cpp")
 
-target_link_libraries(numd xtensor xtensor::optimize)
+target_link_libraries(numd_c_libs xtensor xtensor::optimize)
 if(WIN32)
-  target_link_libraries(numd libfftw3-3)
+  target_link_libraries(numd_c_libs libfftw3-3)
 else()
-  target_link_libraries(numd fftw3)
+  target_link_libraries(numd_c_libs fftw3)
 endif()
 
-target_compile_features (numd PUBLIC cxx_std_17)
+target_compile_features (numd_c_libs PUBLIC cxx_std_17)
 
-set_target_properties(numd PROPERTIES
+set_target_properties(numd_c_libs PROPERTIES
   LINKER_LANGUAGE CXX
   PUBLIC_HEADER numd.h
-  OUTPUT_NAME "numd"
+  OUTPUT_NAME "numd_c_libs"
 )
 
-target_compile_definitions(numd PUBLIC DART_SHARED_LIB)
+target_compile_definitions(numd_c_libs PUBLIC DART_SHARED_LIB)
