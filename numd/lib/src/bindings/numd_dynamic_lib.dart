@@ -9,9 +9,9 @@ class NumdDynamicLib {
   }
 
   NumdDynamicLib.__new__() {
-    String library = 'libnumd.so';
+    String library = 'libnumd_c_libs.so';
     if (Platform.isMacOS) {
-      library = 'libnumd.dylib';
+      library = 'libnumd_c_libs.dylib';
     } else if (Platform.isWindows) {
       library = 'numd_c_libs.dll';
     }
