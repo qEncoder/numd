@@ -19,12 +19,12 @@ dynamic _reduction(ndarray array, Function func, {dynamic axis}) {
     }
     ndarray result = ndarray.fromPointer(func(array.arrPtr, axes, axis.length));
     calloc.free(axes);
-
-    if (result.size == 1) {
+  
+    if (array.ndim == axis.length) {
       return result.flat[0];
-    } else {
-      return result;
     }
+
+    return result;
   }
 }
 
@@ -34,6 +34,11 @@ dynamic average(ndarray array, {dynamic axis}) {
 
 dynamic mean(ndarray array, {List<int>? axis}) {
   return _reduction(array, NumdBindings(NumdDynamicLib().xTensorLib).mean,
+      axis: axis);
+}
+
+dynamic nanmean(ndarray array, {List<int>? axis}) {
+  return _reduction(array, NumdBindings(NumdDynamicLib().xTensorLib).nanmean,
       axis: axis);
 }
 

@@ -259,6 +259,19 @@ FFI_PLUGIN_EXPORT void* max(void* array, int64_t* axis, int n_axis){
     return static_cast<void *>(new_arr);
 }
 
+FFI_PLUGIN_EXPORT void* nanmean(void* array, int64_t* axis, int n_axis){
+    xarray* _array = static_cast<xarray *>(array);
+    
+    std::vector<int> myvec;
+    for (size_t i = 0; i < n_axis; i++)
+        myvec.push_back(axis[i]);
+
+    xarray* new_arr = new xarray;
+    *new_arr = xt::nanmean(*_array, myvec);
+
+    return static_cast<void *>(new_arr);
+}
+
 FFI_PLUGIN_EXPORT void* nanmin(void* array, int64_t* axis, int n_axis){
     xarray* _array = static_cast<xarray *>(array);
     

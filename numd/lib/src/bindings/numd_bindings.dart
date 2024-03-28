@@ -365,6 +365,18 @@ class NumdBindings {
       ffi.Pointer<ffi.Void> Function(
           ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Int64>, int)>();
 
+  ffi.Pointer<ffi.Void> nanmean( ffi.Pointer<ffi.Void> array, 
+                                 ffi.Pointer<ffi.Int64> axis,
+                                 int n_axis,) {
+    return _nanmean(array, axis, n_axis);
+  }
+
+  late final _nanmeanPtr = _lookup<ffi.NativeFunction<ffi.Pointer<ffi.Void>
+          Function(ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Int64>, ffi.Int)>>('nanmean');
+  late final _nanmean = _nanmeanPtr.asFunction<ffi.Pointer<ffi.Void>
+          Function(ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Int64>, int)>();
+
+  
   ffi.Pointer<ffi.Void> nanmin(
     ffi.Pointer<ffi.Void> array,
     ffi.Pointer<ffi.Int64> axis,

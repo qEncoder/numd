@@ -63,6 +63,7 @@ extern "C" {
     FFI_PLUGIN_EXPORT void* mean(void* array, int64_t* axis, int n_axis);
     FFI_PLUGIN_EXPORT void* min(void* array, int64_t* axis, int n_axis);
     FFI_PLUGIN_EXPORT void* max(void* array, int64_t* axis, int n_axis);
+    FFI_PLUGIN_EXPORT void* nanmean(void* array, int64_t* axis, int n_axis);
     FFI_PLUGIN_EXPORT void* nanmin(void* array, int64_t* axis, int n_axis);
     FFI_PLUGIN_EXPORT void* nanmax(void* array, int64_t* axis, int n_axis);
     FFI_PLUGIN_EXPORT void* normalize(void* array);

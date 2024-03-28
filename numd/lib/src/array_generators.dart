@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:numd/src/base/ndarray.dart';
 
 ndarray empty(List<int> shape) {
@@ -34,4 +36,16 @@ ndarray eye(n) {
     arr[[i, i]] = 1;
   }
   return arr;
+}
+
+ndarray asarray(dynamic data) {
+  if (data is List) {
+    return ndarray.fromList(data);
+  } else if (data is ndarray) {
+    return data;
+  } else if (data is num) {
+    return ndarray.fromList([data]);
+  } else {
+    throw Exception('Invalid data type');
+  }
 }
