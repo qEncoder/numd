@@ -21,7 +21,8 @@
 struct slice{
     int64_t start;
     int64_t stop;
-    bool noRange;
+    int64_t step;
+    bool singleValue;
 };
 
 typedef struct slice slice;

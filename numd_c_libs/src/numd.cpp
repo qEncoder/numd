@@ -52,12 +52,12 @@ FFI_PLUGIN_EXPORT void get_shape(void* array, int64_t* shape){
 FFI_PLUGIN_EXPORT xt::xstrided_slice_vector generate_array_slices(slice* slices, int n_slices){
     xt::xstrided_slice_vector sv;
     for (size_t i = 0; i < n_slices; i++){
-        if(slices[i].noRange == true){
+        if(slices[i].singleValue == true){
             sv.push_back(slices[i].start);
-        }else if (slices[i].start == 0 && slices[i].stop==-1) {
+        }else if (slices[i].start == 0 && slices[i].stop==-1 && slices[i].step==1) {
             sv.push_back( xt::all());
         }else{
-            sv.push_back( xt::range(slices[i].start, slices[i].stop));
+            sv.push_back( xt::range(slices[i].start, slices[i].stop, slices[i].step));
         }
     }
     return sv;

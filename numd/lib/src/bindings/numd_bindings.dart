@@ -516,8 +516,11 @@ final class slice extends ffi.Struct {
   @ffi.Int64()
   external int stop;
 
+  @ffi.Int64()
+  external int step;
+
   @ffi.Bool()
-  external bool noRange;
+  external bool singleValue;
 }
 
 final class histogram_pointers extends ffi.Struct {

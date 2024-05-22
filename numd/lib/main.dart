@@ -23,11 +23,17 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     super.initState();
     sumResult = nd.ndarray.fromList([1, 2, 3, 4, 8 , 3, 2, 1, double.nan]);
-    sumResult = nd.linspace(1e-9, 1e-9+1e-12, 100);
-    var res = nd.histogramLinBin(sumResult, 10, 1e-9, 1e-9+1e-12);
-    print(res.$1);
-    print(res.$2);
-    print(generateHistogramCbar(sumResult, 10, 1e-9, 1e-9+1e-12));
+    // sumResult = nd.linspace(0, 5, 6);
+  
+    print(sumResult);
+    print(sumResult[nd.Slice(0, -1, 2)]);
+    print(sumResult[nd.Slice(0, -1, 3)]);
+    print(sumResult[nd.Slice(0, -1, 4)]);
+    // sumResult = nd.linspace(1e-9, 1e-9+1e-12, 100);
+    // var res = nd.histogramLinBin(sumResult, 10, 1e-9, 1e-9+1e-12);
+    // print(res.$1);
+    // print(res.$2);
+    // print(generateHistogramCbar(sumResult, 10, 1e-9, 1e-9+1e-12));
 
     // print(sumResult[0]);
     // print(sumResult[1]);

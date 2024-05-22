@@ -13,7 +13,9 @@ import 'package:numd/src/utility/iterators.dart';
 class Slice {
   int start;
   int? stop;
-  Slice(this.start, [this.stop]);
+  int step;
+
+  Slice(this.start, [this.stop, this.step = 1]);
 
   @override
   String toString() {
@@ -21,7 +23,7 @@ class Slice {
   }
 
   int get size{
-    if (stop != null && stop! >= 0) return stop! - start;
+    if (stop != null && stop! >= 0) return ((stop! - start)/step.toDouble()).ceil();
     return -1;
   }
 
@@ -30,12 +32,12 @@ class Slice {
     int newStop = stop ?? shape;
     if (newStart < 0) newStart = shape + start;
     if (newStop < 0) newStop = shape + stop!;
-    return Slice(newStart, newStop);
+    return Slice(newStart, newStop, step);
   }
 
   @override
   int get hashCode {
-    List<int?> h = [start, stop];
+    List<int?> h = [start, stop, step];
     return Object.hashAll(h);
   }
 }
@@ -229,12 +231,14 @@ class ndarray implements Finalizable {
       if (idx[i] is int) {
         c_slice_list[i].start = idx[i];
         c_slice_list[i].stop = idx[i];
-        c_slice_list[i].noRange = true;
+        c_slice_list[i].step = 1;
+        c_slice_list[i].singleValue = true;
       } else if (idx[i] is Slice) {
         Slice currentSlice = idx[i].getFormattedSlice(shape[i]);
         c_slice_list[i].start = currentSlice.start;
         c_slice_list[i].stop = currentSlice.stop!;
-        c_slice_list[i].noRange = false;
+        c_slice_list[i].step = currentSlice.step;
+        c_slice_list[i].singleValue = false;
       }
     }
     return (c_slice_list, idx.length);
