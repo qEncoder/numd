@@ -10,3 +10,4 @@ export 'src/expressions/rearrange.dart';
 export 'src/expressions/fft.dart';
 
 export 'src/utility/iterators.dart';
+export 'src/utility/math.dart';
