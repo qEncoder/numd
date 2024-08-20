@@ -4,7 +4,7 @@
 cmake_minimum_required(VERSION 3.10)
 
 # Project-level configuration.
-set(PROJECT_NAME "numd")
+set(PROJECT_NAME "numd_c_libs")
 project(${PROJECT_NAME} LANGUAGES CXX)
 
 # Invoke the build for native code shared with the other target platforms.
@@ -14,9 +14,9 @@ add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/../src" "${CMAKE_CURRENT_BINARY_DI
 # List of absolute paths to libraries that should be bundled with the plugin.
 # This list could contain prebuilt libraries, or libraries created by an
 # external build triggered from this build file.
-set(numd_bundled_libraries
+set(numd_c_libs_bundled_libraries
   # Defined in ../src/CMakeLists.txt.
   # This can be changed to accommodate different builds.
-  $<TARGET_FILE:numd>
+  $<TARGET_FILE:numd_c_libs>
   PARENT_SCOPE
 )
