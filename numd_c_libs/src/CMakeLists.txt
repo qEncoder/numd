@@ -30,6 +30,8 @@ IF (WIN32)
 else()
   # hearder file for xtensor-fftw are installed here
   include_directories(${CMAKE_CURRENT_SOURCE_DIR}/c_lib/xtensor/0.24.6/include)
+  include_directories(${CMAKE_CURRENT_SOURCE_DIR}/c_lib/xtl/0.7.4/include)
+  include_directories(${CMAKE_CURRENT_SOURCE_DIR}/c_lib/fftw/3.5.5/include)
 ENDIF()
 
 
