@@ -27,10 +27,9 @@ IF (WIN32)
       CACHE STRING "" FORCE
   )
 
-
 else()
   # hearder file for xtensor-fftw are installed here
-  include_directories(~/.local/include/)
+  include_directories(${CMAKE_CURRENT_SOURCE_DIR}/c_lib/xtensor/0.24.6/include)
 ENDIF()
 
 
