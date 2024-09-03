@@ -1,0 +1,6 @@
+framework module numd {
+  umbrella header "numd.h"
+  export *
+
+  module * { export * }
+}
