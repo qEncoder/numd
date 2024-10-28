@@ -18,7 +18,9 @@ set(FFTW_VERSION "3.5.5")
 set(LIB_DIR "${CMAKE_CURRENT_SOURCE_DIR}/c_lib")
 
 if(WIN32)
-  set(FFTW_LIB_NAME "libfftw3-3")
+  set(FFTW_LIB_NAME "${LIB_DIR}/fftw/${FFTW_VERSION}/lib/libfftw3-3.lib")
+  list(APPEND CMAKE_PREFIX_PATH "${LIB_DIR}/xtl/${XTL_VERSION}/share/cmake/xtl"
+                                "${LIB_DIR}/xtensor/${XTENSOR_VERSION}/share/cmake/xtensor")
 elseif(APPLE)
   set(FFTW_LIB_NAME "${CMAKE_CURRENT_SOURCE_DIR}/fftw/lib/libfftw3.a")
 else()
