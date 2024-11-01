@@ -12,7 +12,6 @@
 
 typedef xt::xarray<double> xarray;
 
-
 FFI_PLUGIN_EXPORT void* create_xarray(int ndim, int64_t* shape, double fill){
     std::vector<size_t> _shape = {};
     for (size_t i = 0; i < ndim; i++){
@@ -386,4 +385,30 @@ FFI_PLUGIN_EXPORT void* histogram_count_lin_bins(void* data, double min, double 
     }
 
     return static_cast<void *>(counts);
+}
+
+
+// make main function to test the library
+
+
+// Function definition
+void greetUser(const std::string& name) {
+    std::cout << "Hello, " << name << "! Welcome to the C++ program." << std::endl;
+}
+
+
+int main(int argc, char* argv[]) {
+    // Check if a name was provided as a command-line argument
+    if (argc < 2) {
+        std::cerr << "Usage: " << argv[0] << " <name>" << std::endl;
+        return 1; // Return a non-zero value to indicate an error
+    }
+
+    // Capture the user's name from command-line arguments
+    std::string name = argv[1];
+
+    // Call a function to greet the user
+    greetUser(name);
+
+    return 0; // Indicate successful execution
 }
