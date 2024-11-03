@@ -32,8 +32,8 @@ find_package(xtl ${XTL_VERSION} REQUIRED)
 find_package(xtensor ${XTENSOR_VERSION} REQUIRED COMPONENTS optimize)
 
 # Create main library target
-# add_library(numd_c_libs SHARED numd.cpp)
-add_executable(numd_c_libs test.cpp)
+add_library(numd_c_libs SHARED numd.cpp)
+# add_executable(numd_c_libs test.cpp)
 
 # Define include directories
 set(INCLUDE_DIRS
@@ -68,7 +68,7 @@ set_target_properties(numd_c_libs PROPERTIES
   CXX_STANDARD_REQUIRED ON
   CXX_EXTENSIONS OFF
   POSITION_INDEPENDENT_CODE ON
-  PUBLIC_HEADER test.h
+  PUBLIC_HEADER numd.h
   OUTPUT_NAME "numd_c_libs"
 )
 
